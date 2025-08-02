@@ -1,22 +1,22 @@
 """
-Configuration settings for the Tournament Calendar system.
-Contains all sports, levels, and database schema definitions.
+Configuration settings for the Tournament System.
+Contains all sports, levels, and API configuration.
 """
 
 import os
 from typing import List, Dict, Any
 
-# All sports to cover as per assignment
+# All sports to cover
 SPORTS_LIST = [
     "Cricket"
 ]
 
-# All levels to cover as per assignment
+# All levels to cover
 LEVELS_LIST = [
     "International"
 ]
 
-# Output format fields as per assignment requirements
+# Output format fields
 OUTPUT_FIELDS = [
     "tournament_name",      # Tournament Name
     "level",               # Level  

@@ -1,433 +1,270 @@
-# 🏆 GenAI Tournament Calendar System - Comprehensive API Edition
+# 🏆 Tournament System - Complete Solution
 
-## 🎯 Project Overview
+> **Organized, Essential Tournament Data Extraction & Processing System**  
+> Clean architecture with API server and web interface
 
-An advanced AI-powered tournament data extraction system with **comprehensive API server functionality**. The system provides both batch processing and real-time API endpoints, leveraging cutting-edge APIs (Firecrawl, Serper, OpenAI) for tournament discovery, extraction, and processing. Perfect for frontend applications requiring tournament data.
+## 🚀 **Quick Start - One Command Setup**
 
-## 🚀 **NEW: Comprehensive API Server**
-
-### 🌟 **Two Execution Modes**
-
-#### **1. API Server Mode (Recommended for Frontend)**
+### **Windows Users:**
 ```bash
-python api_server.py
+# Double-click or run this command
+start.bat
 ```
-- **Real-time API endpoints** for frontend integration
-- **Two processing approaches**: Quick search + Comprehensive processing
-- **Automatic file exports** (CSV/JSON)
-- **CORS enabled** for web applications
-- **Complete main.py functionality** accessible via API
 
-#### **2. Batch Processing Mode (Traditional)**
+### **Linux/Mac Users:**
 ```bash
-python main.py  
+# Make executable and run
+chmod +x start.sh
+./start.sh
 ```
-- **One-time bulk processing** for complete datasets
-- **Research and analysis** workflows
-- **Scheduled batch jobs**
 
-## 🔗 **API Endpoints**
+### **Manual Setup (Alternative):**
+```bash
+# 1. Activate environment
+.venv\Scripts\activate     # Windows
+source .venv/bin/activate  # Linux/Mac
 
-### **📍 Quick Search Endpoint**
+# 2. Start Backend (Terminal 1)
+python run.py server --port 8000
+
+# 3. Start Frontend (Terminal 2)
+cd frontend
+python -m http.server 3000
+```
+
+## 🌐 **Access Your Services**
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| **🖥️ Frontend** | http://localhost:3000 | Web interface for tournament search |
+| **🚀 Backend API** | http://localhost:8000 | REST API server |
+| **📊 Health Check** | http://localhost:8000/health | API status |
+| **📋 API Docs** | http://localhost:8000/docs | API documentation |
+
+## ✨ **Features**
+
+### **🎯 Web Interface (Frontend)**
+- **Beautiful UI** - Clean, responsive tournament search interface
+- **Real-time Search** - Instant tournament discovery by sport/level
+- **Live Results** - Dynamic tournament data display
+- **Mobile Friendly** - Works on all devices
+
+### **🚀 API Server (Backend)**
+- **RESTful API** - Standard HTTP endpoints
+- **Tournament Search** - `/search?sport=Cricket&level=International`
+- **Health Monitoring** - Service status checking
+- **CORS Enabled** - Frontend integration ready
+
+### **📊 Data Processing**
+- **AI-Powered Extraction** - Firecrawl + OpenAI integration
+- **Smart Filtering** - Relevance-based tournament discovery
+- **Deduplication** - Automatic duplicate removal
+- **Export Ready** - CSV/JSON output formats
+
+## 🔧 **System Architecture**
+
+```
+┌─────────────────┐    HTTP/REST    ┌─────────────────┐
+│   Frontend      │◄───────────────►│   Backend API   │
+│   (Port 3000)   │                 │   (Port 8000)   │
+│                 │                 │                 │
+│ • Search UI     │                 │ • Tournament    │
+│ • Results       │                 │   Processing    │
+│ • Export        │                 │ • Data Export   │
+└─────────────────┘                 └─────────────────┘
+                                              │
+                                              ▼
+                                    ┌─────────────────┐
+                                    │  Core System    │
+                                    │                 │
+                                    │ • Query Gen     │
+                                    │ • Web Scraping  │
+                                    │ • AI Extraction │
+                                    │ • Data Process  │
+                                    └─────────────────┘
+```
+
+## 📋 **API Endpoints**
+
+### **Search Tournaments**
 ```http
 GET /search?sport=Cricket&level=International
 ```
-- **Purpose**: Fast, responsive frontend interactions
-- **Processing**: Uses all available queries for comprehensive coverage
-- **Features**: Complete pipeline + optional file export
-- **Response**: JSON with tournament data + export files
-
-### **📍 Comprehensive Processing Endpoint**
-```http
-GET /comprehensive?sport=Cricket&export=true
-```
-- **Purpose**: Complete dataset generation (identical to main.py)
-- **Processing**: Full main.py workflow - all queries, all URLs
-- **Features**: Guaranteed file export + complete processing pipeline
-- **Response**: Comprehensive JSON with detailed statistics
-
-### **📍 Health Check & Documentation**
-```http
-GET /health          # Service status
-GET /                # API documentation
-```
-
-## ✨ Key Features
-
-### 🎯 **Comprehensive API Integration**
-- **Frontend-Ready API** - CORS enabled REST endpoints
-- **Real-time Processing** - On-demand tournament extraction
-- **File Export API** - Automatic CSV/JSON generation
-- **Complete Pipeline** - Query→Search→Extract→Process→Filter→Export
-
-### 🔄 **Dual Processing Approaches**
-- **Quick Search** - Optimized for speed and frontend responsiveness
-- **Comprehensive** - Full main.py functionality with maximum coverage
-- **Flexible Configuration** - Choose approach based on use case
-
-### ✨ Advanced Schema-Based Extraction
-- **Firecrawl API Integration** - Clean, structured content extraction
-- **Schema-Driven Processing** - Consistent data structure and quality
-- **All URLs Processing** - No artificial limits (max_urls=None)
-
-### 🎯 Smart Tournament Discovery
-- **Comprehensive Query Coverage** - Uses all available sport-specific queries
-- **Serper API Integration** - Google-quality search results
-- **Relevance Scoring** - Prioritizes high-quality sources
-
-### 📅 Intelligent Date Filtering
-- **Recent & Future Focus** - Automatically filters tournaments to include:
-  - Past 6 months tournaments (for reference)
-  - All upcoming/future tournaments
-- **Date Parsing & Validation** - Handles multiple date formats intelligently
-
-### 🔄 Complete Automation Pipeline
-- **End-to-End Processing** - Single command execution from search to export
-- **Batch Processing** - Efficient handling of multiple tournaments
-- **Deduplication** - Removes duplicate tournaments automatically
-- **Error Recovery** - Robust error handling and retry mechanisms
-
-## 🏗️ System Architecture
-
-### **API Server Architecture (New)**
-```
-Frontend Request → API Endpoint → Complete Processing Pipeline → JSON Response + File Export
-```
-
-### **Traditional Batch Architecture**
-```
-Query Generation → Web Search → Content Extraction → Data Processing → Export
-```
-
-### **Core Components**
-
-#### **1. API Server (api_server.py)**
-- **Flask-based REST API** with comprehensive tournament processing
-- **Two endpoints**: `/search` (quick) and `/comprehensive` (full)
-- **CORS enabled** for frontend integration
-- **Automatic file export** functionality
-
-#### **2. Batch Processor (main.py)**
-- **Traditional workflow** for bulk data processing
-- **Research and analysis** use cases
-- **Scheduled processing** capabilities
-
-#### **3. Core Processing Pipeline**
-- **Query Generation** - Sport-specific search queries
-- **Search Collection** - Serper API integration
-- **Content Extraction** - Firecrawl schema-based extraction
-- **Data Processing** - Deduplication and validation
-- **Export System** - CSV/JSON file generation
-
-## 🔧 Technology Stack
-
-### Core APIs
-- **🔍 Serper API** - Advanced web search with Google-quality results
-- **🌐 Firecrawl API** - Schema-based content extraction and web scraping
-- **🤖 OpenAI API** - AI-powered query enhancement and data processing
-
-### Web Framework
-- **🌐 Flask** - Lightweight web framework for API server
-- **🔄 Flask-CORS** - Cross-origin resource sharing for frontend integration
-- **📊 JSON Response** - RESTful API responses
-
-### Programming & Libraries
-- **🐍 Python 3.12+** - Main programming language
-- **📊 pandas** - Data processing and manipulation
-- **🌐 requests** - HTTP client for API interactions
-- **⚙️ python-dotenv** - Environment variable management
-- **📁 pathlib** - Modern path handling
-
-## ⚡ Quick Start
-
-### 1. Prerequisites
-```bash
-# Python 3.12 or higher
-python --version
-```
-
-### 2. Environment Setup
-```bash
-# Clone the repository
-git clone <repository-url>
-cd tournament-calendar
-
-# Create virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### 3. API Configuration
-Create a `.env` file in the project root:
-```env
-# Required API Keys
-SERPER_API_KEY=your_serper_api_key_here
-FIRECRAWL_API_KEY=your_firecrawl_api_key_here
-OPENAI_API_KEY=your_openai_api_key_here
-```
-
-### 4. **Choose Your Execution Mode**
-
-#### **🚀 API Server Mode (Recommended)**
-```bash
-# Start the API server
-python api_server.py
-
-# Server will start at http://localhost:8000
-# API Documentation: http://localhost:8000/
-```
-
-#### **📊 Batch Processing Mode**
-```bash
-# Execute the complete pipeline
-python main.py
-```
-
-## 🌐 **Frontend Integration**
-
-### **JavaScript/React Usage**
-```javascript
-// Quick search for immediate results
-const quickSearch = async (sport, level) => {
-  const response = await fetch(
-    `http://localhost:8000/search?sport=${sport}&level=${level}`
-  );
-  return response.json();
-};
-
-// Comprehensive processing (full main.py functionality)
-const comprehensiveProcessing = async (sport) => {
-  const response = await fetch(
-    `http://localhost:8000/comprehensive?sport=${sport}&export=true`
-  );
-  return response.json();
-};
-
-// Example usage
-const tournaments = await quickSearch('Cricket', 'International');
-console.log(`Found ${tournaments.tournaments.length} tournaments`);
-```
-
-### **API Response Structure**
+**Response:**
 ```json
 {
-  "status": "success",
-  "sport": "Cricket",
-  "tournaments": [...],
-  "metadata": {
-    "total_found": 15,
-    "queries_used": 4,
-    "search_results": 32,
-    "extraction_method": "schema-based",
-    "timestamp": "2025-08-02T..."
-  },
-  "export_info": {
-    "csv_file": "cricket_tournaments_api.csv",
-    "json_file": "cricket_tournaments_api.json",
-    "export_timestamp": "2025-08-02T..."
-  }
+  "success": true,
+  "count": 25,
+  "tournaments": [
+    {
+      "tournament_name": "ICC World Cup 2024",
+      "level": "International",
+      "start_date": "2024-10-01",
+      "venue": "India",
+      "official_url": "https://icc-cricket.com"
+    }
+  ]
 }
 ```
 
-## 📊 Output Structure
+### **Health Check**
+```http
+GET /health
+```
+**Response:**
+```json
+{
+  "status": "healthy",
+  "version": "4.0.0",
+  "timestamp": "2025-08-02T10:30:00Z"
+}
+```
 
-### Tournament Data Fields
-Each extracted tournament contains:
-- **tournament_name** - Official tournament name
-- **level** - Competition level (International/National/etc.)
-- **start_date** - Tournament start date (YYYY-MM-DD format)
-- **end_date** - Tournament end date (YYYY-MM-DD format)
-- **venue** - Tournament location/venue
-- **tournament_url** - Official tournament website
-- **streaming_links** - Live streaming URLs (if available)
-- **images** - Tournament poster/logo URLs
-- **summary** - Brief tournament description
-- **confidence_score** - Data quality assessment (0.0-1.0)
+## 🛠️ **Development**
 
-### **File Exports**
-Both API endpoints automatically generate:
-- **📄 CSV File** - `{sport}_tournaments_api.csv` or `{sport}_comprehensive.csv`
-- **📋 JSON File** - `{sport}_tournaments_api.json` or `{sport}_comprehensive.json`
-- **📊 Manifest** - Export metadata and statistics
+### **Project Structure**
+```
+tournament_system/           # Main package
+├── core/                   # Core processing
+│   ├── query_generator.py  # Search query generation
+│   ├── search_collector.py # Web search collection
+│   ├── content_extractor.py# Content extraction
+│   └── data_processor.py   # Data processing
+├── api/                    # API server
+│   ├── routes/            # API endpoints
+│   ├── services/          # Business logic
+│   └── models/           # Data models
+├── database/              # Database operations
+├── exporters/            # Data export
+└── utils/               # Utilities
 
-## 🎯 **Use Case Scenarios**
+frontend/                  # Web interface
+├── index.html            # Main UI
+└── index_fixed.html     # Production UI
 
-### **1. Frontend Web Application**
+archive/                  # Organized old files
+└── [legacy files]       # Previous versions
+```
+
+### **Environment Setup**
 ```bash
-# Start API server
-python api_server.py
+# Dependencies already installed via UV
+pip list | findstr tournament
 
-# Frontend calls /search for real-time results
-# Frontend calls /comprehensive for complete datasets
+# Environment variables required in .env:
+SERPER_API_KEY=your_key_here
+FIRECRAWL_API_KEY=your_key_here
+OPENAI_API_KEY=your_key_here
 ```
 
-### **2. Data Analysis & Research**
+## 🔍 **Troubleshooting**
+
+### **Services Won't Start**
 ```bash
-# Use comprehensive API endpoint
-curl "http://localhost:8000/comprehensive?sport=Cricket&export=true"
+# Check if ports are free
+netstat -an | findstr :3000
+netstat -an | findstr :8000
 
-# Or traditional batch processing
-python main.py
+# Kill existing processes if needed
+taskkill /f /im python.exe    # Windows
+pkill -f python              # Linux/Mac
 ```
 
-### **3. Scheduled Data Updates**
+### **API Connection Issues**
 ```bash
-# API server can run continuously
-# Frontend triggers /comprehensive on schedule
-# Files automatically updated in final_output/
-```
-
-## 🔄 **Processing Pipeline Comparison**
-
-### **API Server (/search endpoint)**
-```
-1. Generate sport-specific queries (all available)
-2. Collect search results (8 per query)  
-3. Extract tournaments (all URLs, schema-based)
-4. Process & deduplicate
-5. Filter recent/future tournaments
-6. Export to files (optional)
-7. Return JSON response
-```
-
-### **API Server (/comprehensive endpoint)**
-```
-1. Generate comprehensive queries (identical to main.py)
-2. Collect all search results (8 per query)
-3. Extract tournaments (all URLs, no limits)
-4. Complete processing pipeline
-5. Filter recent/future tournaments  
-6. Export to files (guaranteed)
-7. Return comprehensive JSON with statistics
-```
-
-### **Batch Processing (main.py)**
-```
-1. Generate comprehensive queries
-2. Collect all search results
-3. Extract tournaments (all URLs)
-4. Complete processing pipeline
-5. Filter recent/future tournaments
-6. Export to final_output/ directory
-```
-
-## 🔍 Troubleshooting
-
-### **API Server Issues**
-
-**Server Won't Start**
-```bash
-❌ Service initialization error: Invalid Serper API key
-💡 Solution: Verify all API keys are set correctly in .env file
-```
-
-**API Requests Failing**
-```bash
-❌ CORS Error in Frontend
-💡 Solution: CORS is enabled - check if server is running on port 8000
-```
-
-**No Tournament Data**
-```bash
-❌ No tournaments could be extracted from search results
-💡 Solution: Check API rate limits and Firecrawl API status
-```
-
-### **Batch Processing Issues**
-
-**API Key Errors**
-```bash
-❌ Configuration error: Missing SERPER_API_KEY
-💡 Solution: Verify all API keys are set in .env file
-```
-
-**Processing Failures**
-```bash
-❌ No tournament data was successfully extracted
-💡 Solution: Check API rate limits and internet connectivity
-```
-
-## 🚀 Future Enhancements
-
-### Planned API Features
-- **🔐 Authentication** - API key-based access control
-- **📊 Rate Limiting** - Request throttling and usage tracking
-- **🔄 Webhooks** - Real-time notifications for data updates
-- **🗄️ Database Integration** - Persistent storage and caching
-
-### Architecture Improvements
-- **⚡ Caching System** - Redis-based response caching
-- **🔄 Background Jobs** - Async processing for large requests
-- **📈 Monitoring** - API performance and usage analytics
-- **🌐 Multi-Sport Support** - Expanded sports coverage
-
-### Frontend Enhancements
-- **🎨 Admin Dashboard** - Tournament management interface
-- **📱 Mobile API** - Optimized mobile responses
-- **🔍 Advanced Filtering** - Date range and location filters
-- **📊 Analytics** - Tournament trends and statistics
-
-## 📋 **Command Reference**
-
-### **API Server Commands**
-```bash
-# Start comprehensive API server
-python api_server.py
-
-# Check server status
+# Test backend directly
 curl http://localhost:8000/health
 
-# Quick tournament search
-curl "http://localhost:8000/search?sport=Cricket&level=International"
-
-# Comprehensive processing
-curl "http://localhost:8000/comprehensive?sport=Cricket&export=true"
+# Check if CORS is working
+# Frontend should automatically connect to backend
 ```
 
-### **Batch Processing Commands**
+### **Environment Issues**
 ```bash
-# Traditional batch processing
-python main.py
+# Recreate environment if needed
+uv venv
+uv sync
 
-# Check system requirements
-python --version
-
-# View batch results
-ls final_output/
+# Check Python version
+python --version  # Should be 3.12+
 ```
 
-## 📊 **System Information**
+## 📊 **Usage Examples**
 
-**Current Version**: 3.0.0 (Comprehensive API Edition)
-**Last Updated**: August 2025
-**License**: Private Project
+### **Web Interface Usage**
+1. Open http://localhost:3000
+2. Select "Cricket" from sport dropdown
+3. Select "International" from level dropdown  
+4. Click "Search Tournaments"
+5. View results and export data
 
-**Key Improvements in v3.0**:
-- 🆕 **Comprehensive API Server** - Full main.py functionality via API
-- 🆕 **Frontend Integration** - CORS-enabled REST endpoints
-- 🆕 **Dual Processing Modes** - Quick + Comprehensive approaches
-- 🆕 **Automatic File Export** - CSV/JSON generation via API
-- ✅ **Advanced schema-based extraction** using Firecrawl
-- ✅ **All URLs processing** (max_urls=None)
-- ✅ **Enhanced deduplication** algorithms
-- ✅ **Improved error handling** and recovery
+### **API Usage (Developers)**
+```javascript
+// Fetch tournaments
+const response = await fetch(
+  'http://localhost:8000/search?sport=Cricket&level=International'
+);
+const data = await response.json();
+console.log(`Found ${data.count} tournaments`);
+```
+
+```python
+# Python API usage
+import requests
+
+response = requests.get(
+    'http://localhost:8000/search',
+    params={'sport': 'Cricket', 'level': 'International'}
+)
+tournaments = response.json()['tournaments']
+```
+
+## 🎯 **Production Deployment**
+
+### **Backend (API Server)**
+```bash
+# Use production WSGI server
+pip install gunicorn
+gunicorn -w 4 -b 0.0.0.0:8000 "tournament_system.api:create_app()"
+```
+
+### **Frontend (Static Files)**
+```bash
+# Serve via nginx, Apache, or cloud hosting
+# Point to frontend/ directory
+```
+
+## 📈 **Performance**
+
+| Component | Performance | Notes |
+|-----------|------------|-------|
+| **Frontend** | ⚡ Instant | Static HTML/JS |
+| **API Server** | 🚀 Fast | Flask + optimized processing |
+| **Data Processing** | 🔄 Variable | Depends on API rate limits |
+| **Tournament Search** | ⭐ Excellent | Cached results |
+
+## 🔒 **Security**
+
+- **API Keys** - Stored in .env file (not committed)
+- **CORS** - Enabled for frontend integration
+- **Input Validation** - Parameter sanitization
+- **Rate Limiting** - Respects external API limits
+
+## 🚀 **Next Steps**
+
+1. **Start Services**: Run `start.bat` (Windows) or `start.sh` (Linux/Mac)
+2. **Open Frontend**: Visit http://localhost:3000
+3. **Search Tournaments**: Use the web interface
+4. **Integrate APIs**: Use endpoints for your applications
+5. **Export Data**: Download results in CSV/JSON
 
 ---
 
-## 🎯 **Status: ✅ Production Ready**
+## 📝 **Version Information**
 
-**Advanced AI-powered tournament extraction system with comprehensive API server functionality. Perfect for frontend applications requiring real-time tournament data processing.**
+- **Version**: 4.0.0 (Clean Architecture Edition)
+- **Python**: 3.12.6
+- **Package Manager**: UV (ultra-fast)
+- **Last Updated**: August 2, 2025
 
-### **Choose Your Approach:**
-- **🚀 API Server**: `python api_server.py` (Frontend applications)
-- **📊 Batch Processing**: `python main.py` (Data analysis & research)
-
-**Both approaches provide identical data quality and processing capabilities!**
+**🎉 Your tournament system is ready to use!**
