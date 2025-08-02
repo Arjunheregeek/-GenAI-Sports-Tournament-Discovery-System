@@ -23,10 +23,8 @@ Requirements:
 
 import os
 import sys
-import json
 from pathlib import Path
 from typing import List, Dict
-from datetime import datetime, date
 
 # Add the project root to Python path
 project_root = Path(__file__).parent
@@ -39,81 +37,6 @@ from tournament_calendar.core.search_collector import SearchResultsCollector
 from tournament_calendar.core.content_extractor import ContentExtractor
 from tournament_calendar.core.data_processor import TournamentDataProcessor
 from tournament_calendar.exporters.data_exporter import TournamentDataExporter
-
-
-def filter_future_tournaments(tournaments: List[Dict]) -> List[Dict]:
-    """
-    Filter out tournaments that have already started or ended.
-    Only keep tournaments that haven't started yet (future tournaments).
-    
-    Args:
-        tournaments: List of tournament dictionaries
-        
-    Returns:
-        List of tournaments with only future tournaments
-    """
-    current_date = date.today()
-    future_tournaments = []
-    filtered_count = 0
-    
-    print(f"   📅 Current date: {current_date}")
-    print(f"   🔍 Filtering tournaments to keep only future events...")
-    
-    for tournament in tournaments:
-        start_date_str = tournament.get('start_date', '')
-        
-        # Skip tournaments without start dates
-        if not start_date_str or start_date_str in ['N/A', 'TBD', 'To be announced']:
-            # Keep tournaments without specific dates (they might be future)
-            future_tournaments.append(tournament)
-            continue
-            
-        try:
-            # Parse different date formats
-            tournament_start_date = None
-            
-            # Try different date formats
-            date_formats = [
-                '%Y-%m-%d',     # 2025-01-15
-                '%d/%m/%Y',     # 15/01/2025
-                '%m/%d/%Y',     # 01/15/2025
-                '%d-%m-%Y',     # 15-01-2025
-                '%B %d, %Y',    # January 15, 2025
-                '%d %B %Y',     # 15 January 2025
-                '%Y-%m',        # 2025-01 (month only)
-                '%B %Y',        # January 2025
-            ]
-            
-            for date_format in date_formats:
-                try:
-                    parsed_date = datetime.strptime(start_date_str.strip(), date_format)
-                    tournament_start_date = parsed_date.date()
-                    break
-                except ValueError:
-                    continue
-            
-            # If we couldn't parse the date, keep the tournament (might be future)
-            if tournament_start_date is None:
-                future_tournaments.append(tournament)
-                continue
-                
-            # Only keep tournaments that start in the future
-            if tournament_start_date > current_date:
-                future_tournaments.append(tournament)
-            else:
-                filtered_count += 1
-                tournament_name = tournament.get('tournament_name', 'Unknown')
-                print(f"   🚫 Filtered out past tournament: {tournament_name} (started {tournament_start_date})")
-                
-        except Exception as e:
-            # If there's any error parsing, keep the tournament
-            future_tournaments.append(tournament)
-            continue
-    
-    print(f"   ✅ Filtered out {filtered_count} past tournaments")
-    print(f"   🎯 Keeping {len(future_tournaments)} future tournaments")
-    
-    return future_tournaments
 
 
 def main():
@@ -142,14 +65,14 @@ def main():
     try:
         query_generator = QueryGenerator()
         
-        # Generate all queries (base + enhanced)
-        print("   🎯 Generating complete cricket tournament query set...")
-        all_queries = query_generator.generate_all_queries(use_llm_enhancement=False)  # Disable LLM for faster testing
+        # Generate base queries for cricket tournaments
+        print("   🎯 Generating cricket tournament queries...")
+        base_queries = query_generator.generate_base_queries()
         
         # Filter to cricket only and limit for demo
-        cricket_queries = [q for q in all_queries if q.get('sport') == 'Cricket'][:15]
+        cricket_queries = [q for q in base_queries if 'Cricket' in str(q).get('sport', '')][:15]
         
-        print(f"✅ Generated {len(cricket_queries)} cricket tournament queries!")
+        print(f"✅ Generated {len(cricket_queries)} optimized search queries!")
         print("\n📋 Sample queries:")
         for i, query_data in enumerate(cricket_queries[:3], 1):
             query_text = query_data.get('query', str(query_data))
@@ -279,41 +202,6 @@ def main():
     except Exception as e:
         print(f"❌ Tournament processing error: {e}")
         return 1
-    
-    # Step 5.5: Filter Future Tournaments Only
-    print("\n📅 STEP 5.5: Filtering tournaments to include only future events...")
-    try:
-        future_tournaments = filter_future_tournaments(tournaments)
-        
-        if future_tournaments and len(future_tournaments) > 0:
-            tournaments = future_tournaments  # Update tournaments list
-            print(f"✅ Tournament filtering completed! {len(tournaments)} future tournaments retained.")
-            
-            # Display filtered tournament summary
-            print(f"\n📋 Future Tournament Summary (Top 5):")
-            for i, tournament in enumerate(tournaments[:5], 1):
-                name = tournament.get('tournament_name', 'N/A')
-                dates = f"{tournament.get('start_date', 'N/A')} - {tournament.get('end_date', 'N/A')}"
-                venue = tournament.get('venue', 'N/A')
-                level = tournament.get('level', 'N/A')
-                
-                print(f"   {i}. {name}")
-                print(f"      📅 {dates}")
-                print(f"      🏟️  {venue} ({level})")
-                print()
-            
-            if len(tournaments) > 5:
-                print(f"   ... and {len(tournaments) - 5} more future tournaments")
-        else:
-            print("⚠️  No future tournaments found after filtering.")
-            print("   This might be expected if all tournaments have already occurred.")
-            # Continue with empty list for demonstration
-            tournaments = []
-            
-    except Exception as e:
-        print(f"❌ Tournament filtering error: {e}")
-        # Continue with unfiltered tournaments if filtering fails
-        pass
     
     # Step 6: Export Results
     print("\n📄 STEP 6: Exporting tournament data...")

@@ -56,31 +56,33 @@ class ContentExtractor:
         try:
             print(f"🔄 Extracting content from: {url}")
             
-            # Use scrape method for single URL extraction
-            result = self.app.scrape_url(
-                url,
-                params={
-                    'formats': ['markdown', 'html'],
-                    'timeout': self.timeout,
-                    'waitFor': 2000,  # Wait 2 seconds for page to load
-                    'extractorOptions': {
-                        'mode': 'llm-extraction-from-markdown',
-                        'extractionPrompt': '''Extract tournament information including:
-                        - Tournament name
-                        - Dates (start and end)
-                        - Registration details
-                        - Venue/location
-                        - Contact information
-                        - Entry fees
-                        - Eligibility criteria
-                        - Any streaming/broadcast information'''
-                    }
-                }
-            )
+            # Use scrape method for single URL extraction - Fixed API format
+            result = self.app.scrape_url(url, formats=['markdown', 'html'])
             
-            if result and 'content' in result:
+            # Parse the result based on Firecrawl API response format
+            if result:
+                # Get the scraped data - Firecrawl returns response with 'data' attribute
+                if hasattr(result, 'data') and result.data:
+                    data = result.data
+                    content_dict = {
+                        'title': data.get('metadata', {}).get('title', ''),
+                        'content': data.get('markdown', ''),
+                        'markdown': data.get('markdown', ''),
+                        'html': data.get('html', ''),
+                        'metadata': data.get('metadata', {})
+                    }
+                else:
+                    # Fallback for different response format
+                    content_dict = {
+                        'title': '',
+                        'content': str(result)[:1000] if result else '',
+                        'markdown': str(result)[:1000] if result else '',
+                        'html': '',
+                        'metadata': {}
+                    }
+                
                 # Process and validate content
-                processed_content = self.process_extracted_content(result, url)
+                processed_content = self.process_extracted_content(content_dict, url)
                 return processed_content
             else:
                 print(f"⚠️ No content returned for {url}")
