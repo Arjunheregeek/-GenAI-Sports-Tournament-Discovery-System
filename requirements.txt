@@ -3,3 +3,5 @@ openai
 pandas
 python-dotenv
 firecrawl-py
+mysql-connector-python
+flask
