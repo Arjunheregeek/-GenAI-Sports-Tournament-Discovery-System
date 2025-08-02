@@ -403,10 +403,10 @@ Gen-AI/
 - [x] **Search Query Generation** - Multi-sport, multi-level query creation
 - [x] **Web Search** - Automated tournament discovery via Serper
 - [x] **Content Extraction** - Clean content extraction via Firecrawl
-- [ ] **AI Data Extraction** - OpenAI-powered tournament detail extraction
-- [ ] **Database Storage** - SQLite integration with normalized data
-- [ ] **Export System** - CSV and JSON output generation
-- [ ] **Full Pipeline** - End-to-end automated system
+- [x] **AI Data Extraction** - OpenAI-powered tournament detail extraction
+- [x] **Database Storage** - SQLite integration with normalized data
+- [x] **Export System** - CSV and JSON output generation
+- [x] **Full Pipeline** - End-to-end automated system
 
 ## 🔄 Workflow
 
