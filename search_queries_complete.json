@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "total_queries": 4,
+    "total_queries": 6,
     "sports_covered": 1,
     "sports_list": [
       "Cricket"
@@ -11,40 +11,58 @@
   },
   "queries": [
     {
-      "sport": "Cricket",
-      "query": "\"ICC\" men Cricket international tournament calendar 2025 schedule fixtures upcoming",
+      "sport": "Basketball",
+      "query": "\"FIBA\" men Basketball international tournament calendar 2025 schedule fixtures upcoming",
       "template": "\"{international_body}\" men {sport} international tournament calendar 2025 schedule fixtures upcoming",
       "type": "official_body",
-      "governing_body": "BCCI",
-      "international_body": "ICC",
-      "official_website": "bcci.tv"
+      "governing_body": "BFI",
+      "international_body": "FIBA",
+      "official_website": "basketballfederationofindia.org"
     },
     {
-      "sport": "Cricket",
-      "query": "\"ICC\" men Cricket events 2025 world championship asia cup series schedule",
-      "template": "\"{international_body}\" men {sport} events 2025 world championship asia cup series schedule",
+      "sport": "Basketball",
+      "query": "\"FIBA\" men Basketball world cup championship 2025 asia cup series schedule",
+      "template": "\"{international_body}\" men {sport} world cup championship 2025 asia cup series schedule",
       "type": "official_body",
-      "governing_body": "BCCI",
-      "international_body": "ICC",
-      "official_website": "bcci.tv"
+      "governing_body": "BFI",
+      "international_body": "FIBA",
+      "official_website": "basketballfederationofindia.org"
     },
     {
-      "sport": "Cricket",
-      "query": "\"ICC\" women Cricket international tournament calendar 2025 schedule fixtures upcoming",
+      "sport": "Basketball",
+      "query": "\"FIBA\" men Basketball major events 2025 world championship tournaments schedule",
+      "template": "\"{international_body}\" men {sport} major events 2025 world championship tournaments schedule",
+      "type": "official_body",
+      "governing_body": "BFI",
+      "international_body": "FIBA",
+      "official_website": "basketballfederationofindia.org"
+    },
+    {
+      "sport": "Basketball",
+      "query": "\"FIBA\" women Basketball international tournament calendar 2025 schedule fixtures upcoming",
       "template": "\"{international_body}\" women {sport} international tournament calendar 2025 schedule fixtures upcoming",
       "type": "official_body",
-      "governing_body": "BCCI",
-      "international_body": "ICC",
-      "official_website": "bcci.tv"
+      "governing_body": "BFI",
+      "international_body": "FIBA",
+      "official_website": "basketballfederationofindia.org"
     },
     {
-      "sport": "Cricket",
-      "query": "\"ICC\" women Cricket events 2025 world championship asia cup series schedule",
-      "template": "\"{international_body}\" women {sport} events 2025 world championship asia cup series schedule",
+      "sport": "Basketball",
+      "query": "\"FIBA\" women Basketball world cup championship 2025 asia cup series schedule",
+      "template": "\"{international_body}\" women {sport} world cup championship 2025 asia cup series schedule",
       "type": "official_body",
-      "governing_body": "BCCI",
-      "international_body": "ICC",
-      "official_website": "bcci.tv"
+      "governing_body": "BFI",
+      "international_body": "FIBA",
+      "official_website": "basketballfederationofindia.org"
+    },
+    {
+      "sport": "Basketball",
+      "query": "\"FIBA\" women Basketball major events 2025 world championship tournaments schedule",
+      "template": "\"{international_body}\" women {sport} major events 2025 world championship tournaments schedule",
+      "type": "official_body",
+      "governing_body": "BFI",
+      "international_body": "FIBA",
+      "official_website": "basketballfederationofindia.org"
     }
   ]
 }

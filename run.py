@@ -31,7 +31,16 @@ def run_server(port=5000, debug=True):
     print(f"🔧 API Docs: http://localhost:{port}/docs")
     print("=" * 50)
     
+    # Import initialize_app function
+    from tournament_system.api import initialize_app
+    
     app = create_app()
+    
+    # Initialize the app and services
+    if not initialize_app(app):
+        print("❌ Failed to initialize application. Exiting.")
+        return
+    
     app.run(host='0.0.0.0', port=port, debug=debug)
 
 

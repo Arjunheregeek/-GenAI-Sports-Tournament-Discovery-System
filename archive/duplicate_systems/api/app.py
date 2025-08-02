@@ -21,9 +21,9 @@ try:
     from .routes import health_bp, docs_bp, tournament_bp
 except ImportError:
     # Fallback for when module is run directly
-    from tournament_system.api.config import APIServerConfig, validate_api_config
-    from tournament_system.api.services import TournamentService
-    from tournament_system.api.routes import health_bp, docs_bp, tournament_bp
+    from api.config import APIServerConfig, validate_api_config
+    from api.services import TournamentService
+    from api.routes import health_bp, docs_bp, tournament_bp
 
 
 def create_app(config: APIServerConfig = None) -> Flask:

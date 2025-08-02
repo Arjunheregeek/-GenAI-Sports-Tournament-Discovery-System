@@ -29,6 +29,7 @@ class QueryGenerator:
             "Cricket": {"international": "ICC", "national": "BCCI", "website": "bcci.tv"},
             "Football": {"international": "FIFA", "national": "AIFF", "website": "the-aiff.com"},
             "Badminton": {"international": "BWF", "national": "BAI", "website": "badmintonindia.org"},
+            "Tennis": {"international": "ITF", "national": "AITA", "website": "aitatennis.com"},
             "Running": {"international": "World Athletics", "national": "AFI", "website": "athleticsfederationofindia.in"},
             "Cycling": {"international": "UCI", "national": "CFI", "website": "cyclingfederationofindia.com"},
             "Swimming": {"international": "World Aquatics", "national": "SFI", "website": "swimmingfederationofindia.com"},
@@ -40,52 +41,117 @@ class QueryGenerator:
             "Gym": {"international": "IWF", "national": "Indian Weightlifting Federation", "website": "indianweightlifting.com"}
         }
         
-        # Sport-specific major events (for LLM context)
+        # Sport-specific major events (for LLM context and targeted queries)
         self.major_events_by_sport = {
-            "Cricket": ["World Cup", "Women's World Cup", "T20 World Cup", "Asia Cup", "Champions Trophy"],
-            "Football": ["World Cup", "Women's World Cup", "Asian Cup", "Copa America", "Euros"],
-            "Badminton": ["World Championships", "Thomas Cup", "Uber Cup", "Asian Championships"],
-            "Basketball": ["World Cup", "Women's World Cup", "Asia Cup", "Olympic Qualifiers"],
-            # Add more sports as needed
+            "Cricket": [
+                "World Cup", "Women's World Cup", "T20 World Cup", "Women's T20 World Cup",
+                "Asia Cup", "Champions Trophy", "World Test Championship", "IPL", 
+                "Women's Premier League", "Under-19 World Cup", "Commonwealth Games"
+            ],
+            "Football": [
+                "World Cup", "Women's World Cup", "Asian Cup", "AFC Women's Asian Cup",
+                "Copa America", "UEFA European Championship", "Nations League", 
+                "Club World Cup", "Champions League", "Olympic Games", "Youth World Cup"
+            ],
+            "Badminton": [
+                "World Championships", "Thomas Cup", "Uber Cup", "Asian Championships",
+                "All England Open", "World Tour Finals", "Sudirman Cup", 
+                "Asian Games", "Commonwealth Games", "Olympic Games", "Youth Olympics"
+            ],
+            "Basketball": [
+                "World Cup", "Women's World Cup", "Asia Cup", "Women's Asia Cup",
+                "Olympic Games", "World University Games", "Youth World Cup",
+                "3x3 World Cup", "Champions League", "Asian Games", "Commonwealth Games"
+            ],
+            "Running": [
+                "World Championships", "Olympic Games", "World Indoor Championships",
+                "World Cross Country Championships", "Diamond League", "Asian Games",
+                "Commonwealth Games", "World Half Marathon Championships", "Marathon Majors"
+            ],
+            "Cycling": [
+                "World Championships", "Olympic Games", "Tour de France", "Giro d'Italia",
+                "Vuelta a España", "World Cup", "Asian Championships", "Commonwealth Games",
+                "Track World Championships", "BMX World Championships", "Mountain Bike World Cup"
+            ],
+            "Swimming": [
+                "World Championships", "Olympic Games", "World Short Course Championships",
+                "Asian Games", "Commonwealth Games", "World Junior Championships",
+                "Swimming World Cup", "Diamond League", "Pan Pacific Championships"
+            ],
+            "Chess": [
+                "World Championship", "Women's World Championship", "World Cup",
+                "Candidates Tournament", "Chess Olympiad", "World Team Championship",
+                "Grand Prix", "Asian Continental Championship", "Youth World Championships"
+            ],
+            "Table Tennis": [
+                "World Championships", "World Cup", "Asian Championships", "Asian Games",
+                "Commonwealth Games", "Olympic Games", "World Team Championships",
+                "ITTF World Tour", "Youth World Championships", "Para World Championships"
+            ],
+            "Kabaddi": [
+                "World Cup", "Asian Games", "Asian Championships", "Pro Kabaddi League",
+                "World Championship", "South Asian Games", "Commonwealth Games",
+                "World Beach Kabaddi Championship", "Youth World Championship"
+            ],
+            "Yoga": [
+                "World Yoga Championship", "Asian Yoga Championship", "International Yoga Day",
+                "World Yoga Olympics", "National Yoga Championship", "Yoga World Cup",
+                "International Yoga Competition", "Asian Yoga Games"
+            ],
+            "Gym": [
+                "World Championships", "Olympic Games", "Asian Games", "Commonwealth Games",
+                "World Cup", "Asian Championships", "Youth World Championships",
+                "World University Games", "Grand Prix Series", "Continental Championships"
+            ],
+            "Tennis": [
+                "Grand Slam", "Wimbledon", "US Open", "French Open", "Australian Open",
+                "Davis Cup", "Fed Cup", "ATP Finals", "WTA Finals", "Olympic Games",
+                "Asian Games", "Commonwealth Games", "Youth Olympics"
+            ]
         }
         
-        # Highly efficient query templates - exactly 4 queries (2 men + 2 women)
-        # These target comprehensive tournament calendars and schedules
+        # Highly efficient query templates - exactly 6 queries (3 men + 3 women)
+        # These target comprehensive tournament calendars and major events
         self.official_query_templates = [
             # Men's international events - comprehensive calendar searches
             '"{international_body}" men {sport} international tournament calendar 2025 schedule fixtures upcoming',
-            '"{international_body}" men {sport} events 2025 world championship asia cup series schedule',
+            '"{international_body}" men {sport} world cup championship 2025 asia cup series schedule',
+            '"{international_body}" men {sport} major events 2025 world championship tournaments schedule',
             
             # Women's international events - comprehensive calendar searches  
             '"{international_body}" women {sport} international tournament calendar 2025 schedule fixtures upcoming',
-            '"{international_body}" women {sport} events 2025 world championship asia cup series schedule'
+            '"{international_body}" women {sport} world cup championship 2025 asia cup series schedule',
+            '"{international_body}" women {sport} major events 2025 world championship tournaments schedule'
         ]
     
-    def generate_official_body_queries(self) -> List[Dict]:
+    def generate_official_body_queries(self, sport: str = None) -> List[Dict]:
         """Generate targeted queries using official governing bodies for maximum authority."""
         queries = []
         
-        print(f"Generating official body queries for {len(self.sports)} sports using governing body data...")
+        # If no sport specified, use all sports from config, otherwise use the provided sport
+        sports_to_process = [sport] if sport else self.sports
         
-        for sport in self.sports:
-            if sport not in self.governing_bodies:
-                print(f"⚠️  No governing body data for {sport}, skipping...")
+        print(f"Generating official body queries for {len(sports_to_process)} sport(s) using governing body data...")
+        
+        for target_sport in sports_to_process:
+            if target_sport not in self.governing_bodies:
+                print(f"⚠️  No governing body data for {target_sport}, skipping...")
                 continue
                 
-            body_info = self.governing_bodies[sport]
+            body_info = self.governing_bodies[target_sport]
             
             # Generate queries using official body templates
             for template in self.official_query_templates:
                 try:
                     query = template.format(
-                        sport=sport,
+                        sport=target_sport,
                         international_body=body_info["international"],
                         national_body=body_info["national"],
                         website=body_info["website"]
                     )
                     
                     queries.append({
-                        "sport": sport,
+                        "sport": target_sport,
                         "query": query,
                         "template": template,
                         "type": "official_body",
@@ -94,7 +160,7 @@ class QueryGenerator:
                         "official_website": body_info["website"]
                     })
                 except KeyError as e:
-                    print(f"⚠️  Template formatting error for {sport}: {e}")
+                    print(f"⚠️  Template formatting error for {target_sport}: {e}")
                     continue
         
         print(f"✅ Generated {len(queries)} official body queries ({len(self.official_query_templates)} per sport)")
@@ -275,20 +341,93 @@ class QueryGenerator:
         
         return stats
     
-    def generate_all_queries(self, use_llm_enhancement: bool = True) -> List[Dict]:
-        """Generate complete set of official body targeted queries."""
+    def is_sport_supported(self, sport: str) -> bool:
+        """Check if a sport is supported by checking if it has governing body data."""
+        return sport in self.governing_bodies
+    
+    def get_supported_sports(self) -> List[str]:
+        """Get list of all supported sports."""
+        return list(self.governing_bodies.keys())
+    
+    def get_sport_info(self, sport: str) -> Dict:
+        """Get governing body information for a specific sport."""
+        if sport not in self.governing_bodies:
+            return {}
+        return self.governing_bodies[sport].copy()
+    
+    def get_major_events(self, sport: str) -> List[str]:
+        """Get major events for a specific sport."""
+        return self.major_events_by_sport.get(sport, [])
+    
+    def generate_enhanced_sport_queries(self, sport: str, include_major_events: bool = True) -> List[Dict]:
+        """Generate enhanced queries for a sport including major event-specific queries."""
+        if not self.is_sport_supported(sport):
+            raise ValueError(f"Sport '{sport}' is not supported. Supported sports: {', '.join(self.get_supported_sports())}")
+        
+        # Get base queries
+        base_queries = self.generate_official_body_queries(sport)
+        
+        if not include_major_events:
+            return base_queries
+        
+        # Add major event-specific queries
+        major_events = self.get_major_events(sport)
+        body_info = self.governing_bodies[sport]
+        enhanced_queries = base_queries.copy()
+        
+        # Add 2-3 major event specific queries
+        major_event_templates = [
+            '"{international_body}" {sport} {major_event} 2025 schedule registration dates venues',
+            '"{international_body}" {major_event} {sport} 2025 tournament format teams participants'
+        ]
+        
+        # Use top 3 major events to avoid too many queries
+        for major_event in major_events[:3]:
+            for template in major_event_templates[:1]:  # Use only 1 template per event to limit queries
+                try:
+                    query = template.format(
+                        sport=sport,
+                        major_event=major_event,
+                        international_body=body_info["international"]
+                    )
+                    enhanced_queries.append({
+                        "sport": sport,
+                        "query": query,
+                        "template": template,
+                        "type": "major_event_specific",
+                        "major_event": major_event,
+                        "international_body": body_info["international"]
+                    })
+                except KeyError:
+                    continue
+        
+        return enhanced_queries
+    
+    def generate_sport_specific_queries(self, sport: str) -> List[Dict]:
+        """Generate standard queries for one sport (main API method)."""
+        if not self.is_sport_supported(sport):
+            raise ValueError(f"Sport '{sport}' is not supported. Supported sports: {', '.join(self.get_supported_sports())}")
+        
+        return self.generate_all_queries(sport=sport, use_llm_enhancement=False)
+    
+    def generate_all_queries(self, sport: str = None, use_llm_enhancement: bool = False) -> List[Dict]:
+        """Generate complete set of official body targeted queries for a specific sport or all sports."""
         print("=" * 60)
         print("🚀 Generating Official Body Query Set for Tournament Calendar")
         print("=" * 60)
         
+        sport_info = f" for {sport}" if sport else ""
+        print(f"🎯 Target: International tournaments{sport_info}")
+        
         # Step 1: Generate official body queries using governing bodies
         print("📋 Step 1: Generating official body queries...")
-        base_queries = self.generate_official_body_queries()
+        base_queries = self.generate_official_body_queries(sport)
         print(f"✅ Generated {len(base_queries)} official body queries")
         
-        # Step 2: Skip LLM enhancement - using only hand-crafted efficient queries
+        # Step 2: Skip LLM enhancement by default for efficiency
         all_queries = base_queries
-        print("\n⏭️  Using only hand-crafted efficient queries (no LLM enhancement needed)")
+        if not use_llm_enhancement:
+            print("\n⏭️  Using only hand-crafted efficient queries (no LLM enhancement)")
         
         # Step 3: Skip local tournament queries - focus on international tournaments only
         print(f"\n🎯 Using focused international queries only: {len(all_queries)} queries")

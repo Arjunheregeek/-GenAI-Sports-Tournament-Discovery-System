@@ -10,10 +10,7 @@ from flask import request, jsonify
 from functools import wraps
 import time
 
-try:
-    from ..models import APIResponse, ProcessingStatus
-except ImportError:
-    from tournament_system.api.models import APIResponse, ProcessingStatus
+from api.models import APIResponse, ProcessingStatus
 
 
 def validate_request_params(required_params: List[str], optional_params: Dict[str, Any] = None):
@@ -137,24 +134,17 @@ def format_success_response(
 
 
 def get_supported_sports() -> List[str]:
-    """Get list of supported sports from the query generator."""
-    # Import here to avoid circular imports
-    try:
-        from tournament_system.core.query_generator import QueryGenerator
-        query_gen = QueryGenerator()
-        return query_gen.get_supported_sports()
-    except Exception:
-        # Fallback list in case of import issues
-        return [
-            "Cricket", "Football", "Basketball", "Tennis", "Badminton", 
-            "Swimming", "Running", "Cycling", "Chess", "Table Tennis", 
-            "Kabaddi", "Yoga", "Gym"
-        ]
+    """Get list of supported sports."""
+    return [
+        "Cricket", "Football", "Basketball", "Tennis", "Badminton", 
+        "Swimming", "Running", "Cycling", "Chess", "Table Tennis", 
+        "Kabaddi", "Yoga", "Gym"
+    ]
 
 
 def validate_sport(sport: str) -> bool:
     """
-    Validate if sport is supported by checking the query generator.
+    Validate if sport is supported.
     
     Args:
         sport: Sport name to validate
@@ -162,14 +152,7 @@ def validate_sport(sport: str) -> bool:
     Returns:
         True if sport is supported, False otherwise
     """
-    try:
-        from tournament_system.core.query_generator import QueryGenerator
-        query_gen = QueryGenerator()
-        return query_gen.is_sport_supported(sport)
-    except Exception:
-        # Fallback validation
-        supported_sports = get_supported_sports()
-        return sport.lower() in [s.lower() for s in supported_sports]
+    return sport.lower() in [s.lower() for s in get_supported_sports()]
 
 
 def create_api_documentation() -> Dict[str, Any]:
