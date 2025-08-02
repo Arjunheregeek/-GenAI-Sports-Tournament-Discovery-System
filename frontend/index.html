@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 Tournament Calendar Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .search-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-button:active {
+            transform: translateY(0);
+        }
+
+        .results-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 Tournament Calendar</h1>
+            <p>Find upcoming sports tournaments worldwide</p>
+        </div>
+
+        <form id="searchForm">
+            <div class="form-group">
+                <label for="sport">
+                    <span class="emoji">🏈</span>Select Sport
+                </label>
+                <select id="sport" name="sport" required>
+                    <option value="">Choose a sport...</option>
+                    <option value="Cricket">🏏 Cricket</option>
+                    <option value="Football">⚽ Football</option>
+                    <option value="Basketball">🏀 Basketball</option>
+                    <option value="Tennis">🎾 Tennis</option>
+                    <option value="Badminton">🏸 Badminton</option>
+                    <option value="Swimming">🏊 Swimming</option>
+                    <option value="Running">🏃 Running</option>
+                    <option value="Cycling">🚴 Cycling</option>
+                    <option value="Chess">♟️ Chess</option>
+                    <option value="Table Tennis">🏓 Table Tennis</option>
+                    <option value="Kabaddi">🤼 Kabaddi</option>
+                    <option value="Yoga">🧘 Yoga</option>
+                    <option value="Gym">💪 Gym/Weightlifting</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="level">
+                    <span class="emoji">🏆</span>Tournament Level
+                </label>
+                <select id="level" name="level" required>
+                    <option value="International" selected>� International</option>
+                </select>
+            </div>
+
+            <button type="submit" class="search-button">
+                <span class="emoji">🔍</span>Search Tournaments
+            </button>
+        </form>
+
+        <div id="resultsContainer" class="results-container">
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                Searching for tournaments...
+            </div>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const sport = document.getElementById('sport').value;
+            const level = document.getElementById('level').value;
+            const resultsContainer = document.getElementById('resultsContainer');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            
+            if (!sport || !level) {
+                alert('Please select a sport!');
+                return;
+            }
+            
+            // Show loading
+            resultsContainer.style.display = 'block';
+            loading.style.display = 'block';
+            results.style.display = 'none';
+            
+            // Call your Python backend API
+            searchTournaments(sport, level);
+        });
+
+        async function searchTournaments(sport, level) {
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            
+            try {
+                console.log(`🔍 Searching for ${sport} tournaments at ${level} level...`);
+                
+                // Call your Python API endpoint
+                const response = await fetch(`http://localhost:8000/search?sport=${sport}&level=${level}`);
+                const data = await response.json();
+                
+                console.log('API Response:', data);
+                
+                loading.style.display = 'none';
+                results.style.display = 'block';
+                
+                if (response.ok && data.tournaments && data.tournaments.length > 0) {
+                    // Success - display tournaments
+                    let tournamentsHtml = '';
+                    data.tournaments.slice(0, 10).forEach((tournament, index) => {
+                        tournamentsHtml += `
+                            <div style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #4caf50; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <h4 style="margin: 0 0 8px 0; color: #2c5530; font-size: 18px;">${tournament.tournament_name || 'Tournament Name N/A'}</h4>
+                                <p style="margin: 4px 0; color: #555;"><strong>📅 Dates:</strong> ${tournament.start_date || 'N/A'} - ${tournament.end_date || 'N/A'}</p>
+                                <p style="margin: 4px 0; color: #555;"><strong>🏟️ Venue:</strong> ${tournament.venue || 'N/A'}</p>
+                                <p style="margin: 4px 0; color: #555;"><strong>🏆 Level:</strong> ${tournament.level || 'N/A'}</p>
+                                ${tournament.summary ? `<p style="margin: 8px 0 0 0; color: #666; font-style: italic;"><strong>📝 Summary:</strong> ${tournament.summary}</p>` : ''}
+                            </div>
+                        `;
+                    });
+                    
+                    results.innerHTML = `
+                        <h3 style="color: #2c5530; margin-bottom: 15px;">🎯 ${sport} Tournament Results (${data.metadata?.total_found || data.tournaments.length} found)</h3>
+                        <div style="margin-bottom: 20px; padding: 15px; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #4caf50;">
+                            <p style="margin: 4px 0;"><strong>🏈 Sport:</strong> ${sport}</p>
+                            <p style="margin: 4px 0;"><strong>🌍 Level:</strong> ${level}</p>
+                            <p style="margin: 4px 0;"><strong>📊 Results:</strong> ${data.tournaments.length} tournaments found</p>
+                            ${data.metadata ? `<p style="margin: 4px 0;"><strong>🔍 Search Stats:</strong> ${data.metadata.queries_used || 0} queries used</p>` : ''}
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <h4 style="color: #333; margin-bottom: 10px;">🏆 Tournament Details:</h4>
+                        </div>
+                        
+                        ${tournamentsHtml}
+                        
+                        ${data.tournaments.length > 10 ? `
+                            <div style="margin-top: 15px; padding: 15px; background: #f0f0f0; border-radius: 8px; text-align: center; color: #666;">
+                                <strong>📋 Showing first 10 of ${data.tournaments.length} tournaments</strong>
+                            </div>
+                        ` : ''}
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #1976d2; color: #1565c0;">
+                            <strong>✅ Live Data Successfully Retrieved!</strong><br>
+                            <small>Results fetched from your Python backend API in real-time</small>
+                        </div>
+                    `;
+                } else if (response.ok && data.tournaments && data.tournaments.length === 0) {
+                    // No tournaments found
+                    results.innerHTML = `
+                        <h3 style="color: #f57c00;">🔍 Search Results for ${sport} - ${level}</h3>
+                        <div style="padding: 25px; background: #fff3e0; border-radius: 8px; border-left: 4px solid #ff9800; text-align: center;">
+                            <h4 style="margin: 0 0 15px 0; color: #e65100;">📭 No tournaments found</h4>
+                            <p style="color: #bf360c; margin-bottom: 15px;">No ${sport} tournaments found at ${level} level.</p>
+                            <div style="background: #ffccbc; padding: 15px; border-radius: 6px; margin-top: 15px;">
+                                <p style="margin: 0; font-size: 14px; color: #5d4037;">
+                                    <strong>Possible reasons:</strong><br>
+                                    • No upcoming tournaments for this sport<br>
+                                    • Try selecting a different sport<br>
+                                    • Check back later for new tournaments
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px; font-family: monospace; font-size: 12px; color: #666;">
+                            <strong>API Response Details:</strong><br>
+                            Queries used: ${data.metadata?.queries_used || 0}<br>
+                            Search results processed: ${data.metadata?.search_results || 0}
+                        </div>
+                    `;
+                } else {
+                    // API error
+                    results.innerHTML = `
+                        <div style="padding: 20px; background: #ffebee; border-radius: 8px; border-left: 4px solid #f44336;">
+                            <h4 style="margin: 0 0 15px 0; color: #c62828;">❌ API Error</h4>
+                            <p style="color: #d32f2f;"><strong>Error:</strong> ${data.error || 'Unknown error occurred'}</p>
+                            <p style="color: #d32f2f;"><strong>Message:</strong> ${data.message || 'No additional information available'}</p>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                loading.style.display = 'none';
+                results.style.display = 'block';
+                results.innerHTML = `
+                    <div style="padding: 20px; background: #ffebee; border-radius: 8px; border-left: 4px solid #f44336;">
+                        <h4 style="margin: 0 0 15px 0; color: #c62828;">❌ Connection Error</h4>
+                        <p style="color: #d32f2f; margin-bottom: 15px;"><strong>Could not connect to the Python API server.</strong></p>
+                        
+                        <div style="background: #ffcdd2; padding: 15px; border-radius: 6px; margin: 15px 0;">
+                            <p style="margin: 0 0 10px 0; color: #b71c1c;"><strong>Please check:</strong></p>
+                            <ul style="margin: 0; padding-left: 20px; color: #b71c1c;">
+                                <li>Python API server is running (python api_server.py)</li>
+                                <li>Server is accessible at http://localhost:8000</li>
+                                <li>Your .env file has valid API keys</li>
+                                <li>Virtual environment is activated</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding: 10px; background: #fafafa; border-radius: 4px; font-family: monospace; font-size: 12px; color: #666;">
+                            <strong>Technical Details:</strong><br>
+                            ${error.message}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+                
+                // Option 2: For now, simulate the search with your actual sports
+                console.log(`Searching for ${sport} tournaments at ${level} level...`);
+                
+                // Simulate API delay
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                loading.style.display = 'none';
+                results.style.display = 'block';
+                
+                results.innerHTML = `
+                    <h3>🎯 Search Results for ${sport} - ${level}</h3>
+                    <div style="margin-bottom: 20px;">
+                        <p><strong>🏈 Selected Sport:</strong> ${sport}</p>
+                        <p><strong>🏆 Tournament Level:</strong> ${level}</p>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #4caf50;">
+                        <strong>✅ Ready to Search:</strong> Your frontend will now search specifically for <strong>${sport}</strong> tournaments!
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 15px; background: #fff3e0; border-radius: 8px; border-left: 4px solid #ff9800;">
+                        <strong>� Next Steps:</strong>
+                        <ul style="margin-top: 10px; padding-left: 20px;">
+                            <li>Create API endpoint in your Python backend</li>
+                            <li>Connect this form to your tournament extraction system</li>
+                            <li>Return real ${sport} tournament data</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px; font-family: monospace; font-size: 14px;">
+                        <strong>API Call Preview:</strong><br>
+                        GET /search?sport=${sport}&level=${level}
+                    </div>
+                `;
+                
+            } catch (error) {
+                loading.style.display = 'none';
+                results.style.display = 'block';
+                results.innerHTML = `
+                    <div style="padding: 15px; background: #ffebee; border-radius: 8px; border-left: 4px solid #f44336; color: #c62828;">
+                        <strong>❌ Error:</strong> Could not connect to backend. Make sure your Python API is running!
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

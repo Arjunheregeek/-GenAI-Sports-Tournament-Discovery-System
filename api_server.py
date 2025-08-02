@@ -38,6 +38,7 @@ from tournament_calendar.core.query_generator import QueryGenerator
 from tournament_calendar.core.search_collector import SearchResultsCollector
 from tournament_calendar.core.content_extractor import ContentExtractor
 from tournament_calendar.core.data_processor import TournamentDataProcessor
+from tournament_calendar.exporters.data_exporter import TournamentDataExporter
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -48,21 +49,23 @@ query_generator = None
 search_collector = None
 content_extractor = None
 data_processor = None
+data_exporter = None
 
 
 def initialize_services():
     """Initialize all tournament extraction services."""
-    global query_generator, search_collector, content_extractor, data_processor
+    global query_generator, search_collector, content_extractor, data_processor, data_exporter
     
     try:
         # Validate configuration
         validate_config()
         
-        # Initialize services
+        # Initialize services (same as main.py)
         query_generator = QueryGenerator()
         search_collector = SearchResultsCollector()
         content_extractor = ContentExtractor()
         data_processor = TournamentDataProcessor()
+        data_exporter = TournamentDataExporter()
         
         # Validate API keys
         if not search_collector.validate_api_key():
@@ -106,15 +109,18 @@ def filter_recent_and_future_tournaments(tournaments: List[Dict]) -> List[Dict]:
 def api_docs():
     """API documentation endpoint."""
     return {
-        "message": "🏆 Tournament Calendar API",
-        "version": "1.0.0",
+        "message": "🏆 Tournament Calendar API - Comprehensive Edition",
+        "version": "2.0.0",
+        "description": "Merged functionality from main.py and api_server.py for comprehensive frontend integration",
         "endpoints": {
-            "/search": "GET - Search tournaments by sport and level",
+            "/search": "GET - Quick tournament search by sport and level (optimized for speed)",
+            "/comprehensive": "GET - Full main.py workflow with comprehensive processing and export",
             "/health": "GET - Health check",
             "/": "GET - This documentation"
         },
         "usage": {
-            "search": "/search?sport=Cricket&level=International",
+            "quick_search": "/search?sport=Cricket&level=International",
+            "comprehensive": "/comprehensive?sport=Cricket&export=true",
             "supported_sports": [
                 "Cricket", "Football", "Basketball", "Tennis", 
                 "Badminton", "Swimming", "Running", "Cycling", 
@@ -122,7 +128,13 @@ def api_docs():
             ],
             "supported_levels": ["International"]
         },
-        "status": "🚀 API Ready"
+        "features": {
+            "quick_search": "Fast tournament search with essential results",
+            "comprehensive": "Complete main.py functionality: all queries, all URLs, full processing pipeline, file exports",
+            "export_formats": ["CSV", "JSON"],
+            "processing_approach": "Schema-based extraction with Firecrawl API"
+        },
+        "status": "🚀 API Ready - Main.py Functionality Integrated"
     }
 
 
@@ -136,9 +148,146 @@ def health_check():
             "query_generator": query_generator is not None,
             "search_collector": search_collector is not None,
             "content_extractor": content_extractor is not None,
-            "data_processor": data_processor is not None
+            "data_processor": data_processor is not None,
+            "data_exporter": data_exporter is not None
         }
     }
+
+
+@app.route('/comprehensive')
+def comprehensive_processing():
+    """
+    Comprehensive tournament processing endpoint - replicates main.py functionality.
+    
+    Query Parameters:
+    - sport: The sport to search for (optional, defaults to 'Cricket')
+    - export: Whether to export results to files (optional, defaults to 'true')
+    
+    Returns:
+    - JSON response with comprehensive tournament results and file exports
+    """
+    try:
+        # Get query parameters
+        sport = request.args.get('sport', 'Cricket').strip()
+        export_files = request.args.get('export', 'true').lower() == 'true'
+        
+        print(f"🚀 COMPREHENSIVE PROCESSING: {sport} tournaments (main.py approach)")
+        print("=" * 70)
+        
+        # Step 1: Generate comprehensive queries (like main.py)
+        print("📋 STEP 1: Generating comprehensive search queries...")
+        all_queries = query_generator.generate_all_queries(use_llm_enhancement=False)
+        sport_queries = [q for q in all_queries if q.get('sport', '').lower() == sport.lower()]
+        
+        if not sport_queries:
+            return jsonify({
+                "error": "Sport not supported for comprehensive processing",
+                "message": f"No queries available for sport: {sport}",
+                "supported_sports": ["Cricket", "Football", "Basketball", "Tennis", "Badminton", "Swimming", "Running", "Cycling", "Chess", "Table Tennis", "Kabaddi", "Yoga", "Gym"]
+            }), 400
+        
+        print(f"✅ Generated {len(sport_queries)} {sport} tournament queries")
+        
+        # Step 2: Collect comprehensive search results (like main.py)
+        print("📊 STEP 2: Collecting comprehensive search results...")
+        all_search_results = []
+        
+        for i, query_data in enumerate(sport_queries, 1):
+            query_text = query_data.get('query', str(query_data))
+            print(f"   Query {i}/{len(sport_queries)}: {query_text[:60]}...")
+            
+            results = search_collector.search_query(query_text, num_results=8)
+            if results and 'organic' in results:
+                organic_results = results['organic']
+                all_search_results.extend(organic_results)
+                print(f"   ✅ Found {len(organic_results)} results")
+            else:
+                print(f"   ⚠️ No organic results found")
+        
+        print(f"✅ Collected {len(all_search_results)} total search results")
+        
+        # Step 3: Extract tournament data (comprehensive)
+        print("🎯 STEP 3: Extracting tournament data...")
+        tournaments = content_extractor.extract_tournaments_batch(
+            search_results=all_search_results,
+            max_urls=None,  # Process ALL URLs like main.py
+            use_structured=True
+        )
+        
+        print(f"✅ Extracted {len(tournaments) if tournaments else 0} tournaments")
+        
+        # Step 4: Process and deduplicate
+        print("🔄 STEP 4: Processing and deduplicating tournaments...")
+        if tournaments:
+            unique_tournaments = data_processor.deduplicate_tournaments(tournaments)
+            print(f"✅ {len(unique_tournaments)} unique tournaments after deduplication")
+        else:
+            unique_tournaments = []
+        
+        # Step 5: Filter recent and future tournaments
+        print("📅 STEP 5: Filtering for recent and future tournaments...")
+        relevant_tournaments = filter_recent_and_future_tournaments(unique_tournaments)
+        print(f"✅ {len(relevant_tournaments)} relevant tournaments retained")
+        
+        # Step 6: Export results (like main.py)
+        export_info = {}
+        if export_files and relevant_tournaments:
+            print("💾 STEP 6: Exporting comprehensive results...")
+            try:
+                csv_file, json_file, manifest_file = data_exporter.export_tournaments(
+                    relevant_tournaments,
+                    formats=['csv', 'json'],
+                    filename_prefix=f"{sport.lower()}_comprehensive"
+                )
+                
+                export_info = {
+                    "csv_file": csv_file,
+                    "json_file": json_file,
+                    "manifest_file": manifest_file,
+                    "export_timestamp": datetime.now().isoformat(),
+                    "status": "success"
+                }
+                print(f"✅ Export completed: {csv_file}, {json_file}")
+                
+            except Exception as e:
+                export_info = {"status": "failed", "error": str(e)}
+                print(f"❌ Export failed: {e}")
+        
+        # Final summary (like main.py)
+        print("\n🎉 COMPREHENSIVE PROCESSING COMPLETED!")
+        print(f"📊 Summary: {len(sport_queries)} queries → {len(all_search_results)} results → {len(relevant_tournaments)} tournaments")
+        
+        return jsonify({
+            "status": "success",
+            "sport": sport,
+            "processing_type": "comprehensive_main_py_approach",
+            "tournaments": relevant_tournaments,
+            "summary": {
+                "queries_generated": len(sport_queries),
+                "search_results_collected": len(all_search_results),
+                "tournaments_extracted": len(tournaments) if tournaments else 0,
+                "unique_tournaments": len(unique_tournaments),
+                "relevant_tournaments": len(relevant_tournaments),
+                "processing_pipeline": "Generate→Search→Extract→Deduplicate→Filter→Export"
+            },
+            "export_info": export_info,
+            "metadata": {
+                "timestamp": datetime.now().isoformat(),
+                "extraction_method": "comprehensive_schema_based",
+                "url_processing": "all_available_urls",
+                "approach": "replicated_main_py_functionality"
+            },
+            "message": f"Comprehensive processing completed: {len(relevant_tournaments)} {sport} tournaments found and processed"
+        })
+        
+    except Exception as e:
+        print(f"❌ Comprehensive processing error: {e}")
+        return jsonify({
+            "status": "error",
+            "error": "Comprehensive processing failed",
+            "message": str(e),
+            "sport": request.args.get('sport', 'Cricket')
+        }), 500
 
 
 @app.route('/search')
@@ -197,9 +346,9 @@ def search_tournaments():
                 ]
             }), 400
         
-        # Use 8 queries with 8 results each for 32 total results
-        sport_queries = sport_queries[:8]  # Use 8 queries for 32 total results (8x8)
-        print(f"   ✅ Using {len(sport_queries)} {sport} queries")
+        # Use comprehensive query approach (like main.py) - all available queries for thorough coverage
+        # Filter to sport-specific queries and use all of them for maximum coverage
+        print(f"   ✅ Using {len(sport_queries)} {sport} queries (comprehensive coverage like main.py)")
         
         # Step 2: Collect search results
         print("   🌐 Collecting search results...")
@@ -209,7 +358,7 @@ def search_tournaments():
             query_text = query_data.get('query', str(query_data))
             print(f"      Query {i}/{len(sport_queries)}: {query_text[:50]}...")
             
-            results = search_collector.search_query(query_text, num_results=8)
+            results = search_collector.search_query(query_text, num_results=8)  # 8 results per query like main.py
             if results and 'organic' in results:
                 organic_results = results['organic']
                 all_search_results.extend(organic_results)
@@ -251,7 +400,31 @@ def search_tournaments():
         
         print(f"   ✅ Found {len(relevant_tournaments)} relevant tournaments")
         
-        # Return results
+        # Step 6: Optional export (like main.py) - save to files for comprehensive datasets
+        export_data = None
+        if len(relevant_tournaments) > 0:
+            try:
+                print("   💾 Exporting results to files...")
+                # Export to both CSV and JSON (like main.py)
+                csv_file, json_file, manifest_file = data_exporter.export_tournaments(
+                    relevant_tournaments,
+                    formats=['csv', 'json'],
+                    filename_prefix=f"{sport.lower()}_tournaments_api"
+                )
+                
+                export_data = {
+                    "csv_file": csv_file,
+                    "json_file": json_file,
+                    "manifest_file": manifest_file,
+                    "export_timestamp": datetime.now().isoformat()
+                }
+                print(f"   ✅ Export completed: {csv_file}, {json_file}")
+                
+            except Exception as e:
+                print(f"   ⚠️ Export failed: {e}")
+                export_data = {"error": str(e)}
+        
+        # Return results (enhanced with main.py features)
         return jsonify({
             "sport": sport,
             "level": level,
@@ -261,9 +434,17 @@ def search_tournaments():
                 "queries_used": len(sport_queries),
                 "search_results": len(all_search_results),
                 "extraction_method": "schema-based",
-                "timestamp": datetime.now().isoformat()
+                "processing_approach": "comprehensive_like_main_py",
+                "timestamp": datetime.now().isoformat(),
+                "export_data": export_data
             },
-            "message": f"Successfully found {len(relevant_tournaments)} {sport} tournaments"
+            "message": f"Successfully found {len(relevant_tournaments)} {sport} tournaments",
+            "summary": {
+                "total_queries_processed": len(sport_queries),
+                "total_search_results": len(all_search_results),
+                "tournaments_extracted": len(relevant_tournaments),
+                "processing_pipeline": "Query→Search→Extract→Process→Filter→Export"
+            }
         })
         
     except Exception as e:
@@ -281,15 +462,19 @@ def not_found(error):
     """Handle 404 errors."""
     return jsonify({
         "error": "Endpoint not found",
-        "message": "Available endpoints: /, /health, /search",
-        "usage": "/search?sport=Cricket&level=International"
+        "message": "Available endpoints: /, /health, /search, /comprehensive",
+        "usage": {
+            "quick_search": "/search?sport=Cricket&level=International",
+            "comprehensive": "/comprehensive?sport=Cricket&export=true"
+        }
     }), 404
 
 
 def main():
-    """Main function to start the API server."""
-    print("🏆 Tournament Calendar API Server")
-    print("=" * 50)
+    """Main function to start the comprehensive API server."""
+    print("🏆 Tournament Calendar API Server - Comprehensive Edition")
+    print("=" * 60)
+    print("📋 Merged functionality from main.py for complete frontend integration")
     
     # Initialize services
     if not initialize_services():
@@ -301,12 +486,14 @@ def main():
     print("   • Host: localhost")
     print("   • CORS: Enabled")
     print("   • Debug: True")
+    print("   • Features: Quick search + Comprehensive processing")
     
-    print(f"\n🚀 Starting API server...")
+    print(f"\n🚀 Starting comprehensive API server...")
     print(f"   • API Documentation: http://localhost:8000/")
     print(f"   • Health Check: http://localhost:8000/health")
-    print(f"   • Search Endpoint: http://localhost:8000/search?sport=Cricket&level=International")
-    print(f"\n📱 Your frontend can now connect to: http://localhost:8000/search")
+    print(f"   • Quick Search: http://localhost:8000/search?sport=Cricket&level=International")
+    print(f"   • Comprehensive: http://localhost:8000/comprehensive?sport=Cricket&export=true")
+    print(f"\n📱 Your frontend now has access to full main.py functionality!")
     
     try:
         # Start the Flask development server
