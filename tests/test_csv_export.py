@@ -7,8 +7,13 @@ as required by the assignment.
 import json
 import csv
 import os
+import sys
 from datetime import datetime
-from config import OUTPUT_FIELDS, SPORTS_LIST, LEVELS_LIST
+
+# Add parent directory to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from tournament_calendar.core.config import OUTPUT_FIELDS, SPORTS_LIST, LEVELS_LIST
 
 class CSVExporter:
     def __init__(self):
