@@ -11,58 +11,58 @@
   },
   "queries": [
     {
-      "sport": "Basketball",
-      "query": "\"FIBA\" men Basketball international tournament calendar 2025 schedule fixtures upcoming",
+      "sport": "Cycling",
+      "query": "\"UCI\" men Cycling international tournament calendar 2025 schedule fixtures upcoming",
       "template": "\"{international_body}\" men {sport} international tournament calendar 2025 schedule fixtures upcoming",
       "type": "official_body",
-      "governing_body": "BFI",
-      "international_body": "FIBA",
-      "official_website": "basketballfederationofindia.org"
+      "governing_body": "CFI",
+      "international_body": "UCI",
+      "official_website": "cyclingfederationofindia.com"
     },
     {
-      "sport": "Basketball",
-      "query": "\"FIBA\" men Basketball world cup championship 2025 asia cup series schedule",
+      "sport": "Cycling",
+      "query": "\"UCI\" men Cycling world cup championship 2025 asia cup series schedule",
       "template": "\"{international_body}\" men {sport} world cup championship 2025 asia cup series schedule",
       "type": "official_body",
-      "governing_body": "BFI",
-      "international_body": "FIBA",
-      "official_website": "basketballfederationofindia.org"
+      "governing_body": "CFI",
+      "international_body": "UCI",
+      "official_website": "cyclingfederationofindia.com"
     },
     {
-      "sport": "Basketball",
-      "query": "\"FIBA\" men Basketball major events 2025 world championship tournaments schedule",
+      "sport": "Cycling",
+      "query": "\"UCI\" men Cycling major events 2025 world championship tournaments schedule",
       "template": "\"{international_body}\" men {sport} major events 2025 world championship tournaments schedule",
       "type": "official_body",
-      "governing_body": "BFI",
-      "international_body": "FIBA",
-      "official_website": "basketballfederationofindia.org"
+      "governing_body": "CFI",
+      "international_body": "UCI",
+      "official_website": "cyclingfederationofindia.com"
     },
     {
-      "sport": "Basketball",
-      "query": "\"FIBA\" women Basketball international tournament calendar 2025 schedule fixtures upcoming",
+      "sport": "Cycling",
+      "query": "\"UCI\" women Cycling international tournament calendar 2025 schedule fixtures upcoming",
       "template": "\"{international_body}\" women {sport} international tournament calendar 2025 schedule fixtures upcoming",
       "type": "official_body",
-      "governing_body": "BFI",
-      "international_body": "FIBA",
-      "official_website": "basketballfederationofindia.org"
+      "governing_body": "CFI",
+      "international_body": "UCI",
+      "official_website": "cyclingfederationofindia.com"
     },
     {
-      "sport": "Basketball",
-      "query": "\"FIBA\" women Basketball world cup championship 2025 asia cup series schedule",
+      "sport": "Cycling",
+      "query": "\"UCI\" women Cycling world cup championship 2025 asia cup series schedule",
       "template": "\"{international_body}\" women {sport} world cup championship 2025 asia cup series schedule",
       "type": "official_body",
-      "governing_body": "BFI",
-      "international_body": "FIBA",
-      "official_website": "basketballfederationofindia.org"
+      "governing_body": "CFI",
+      "international_body": "UCI",
+      "official_website": "cyclingfederationofindia.com"
     },
     {
-      "sport": "Basketball",
-      "query": "\"FIBA\" women Basketball major events 2025 world championship tournaments schedule",
+      "sport": "Cycling",
+      "query": "\"UCI\" women Cycling major events 2025 world championship tournaments schedule",
       "template": "\"{international_body}\" women {sport} major events 2025 world championship tournaments schedule",
       "type": "official_body",
-      "governing_body": "BFI",
-      "international_body": "FIBA",
-      "official_website": "basketballfederationofindia.org"
+      "governing_body": "CFI",
+      "international_body": "UCI",
+      "official_website": "cyclingfederationofindia.com"
     }
   ]
 }
