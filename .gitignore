@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+test_*.json
+*.log
+
+# API response files (optional - you might want to keep some for testing)
+test_serper_results.json
+test_firecrawl_*.json
+test_firecrawl_summary.json
+
+# Output files (keep the sample_output folder structure but ignore contents during development)
+sample_output/*.csv
+sample_output/*.json
+sample_output/*.db
