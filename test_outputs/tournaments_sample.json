@@ -1,0 +1,46 @@
+[
+  {
+    "tournament_name": "INDIA TOUR OF ENGLAND 2025",
+    "level": "International",
+    "start_date": "2025-06-20",
+    "end_date": "2025-08-04",
+    "official_url": "",
+    "streaming_links": "",
+    "image_url": "",
+    "summary": "India's tour of England featuring 5 Test matches from June to August 2025.",
+    "sport": "Cricket"
+  },
+  {
+    "tournament_name": "INDIA MENS U19 TOUR OF ENGLAND 2025",
+    "level": "International",
+    "start_date": "2025-06-27",
+    "end_date": "2025-07-23",
+    "official_url": "",
+    "streaming_links": "",
+    "image_url": "",
+    "summary": "India Men's U19 team tour of England with 2 Test matches and 5 ODIs in June and July 2025.",
+    "sport": "Cricket"
+  },
+  {
+    "tournament_name": "ICC Men's Champions Trophy 2025",
+    "level": "International",
+    "start_date": "2025-02-01",
+    "end_date": "2025-03-31",
+    "official_url": "",
+    "streaming_links": "",
+    "image_url": "",
+    "summary": "ICC Men's Champions Trophy 2025 to be held in Pakistan from February to March 2025.",
+    "sport": "Cricket"
+  },
+  {
+    "tournament_name": "Women's ODI Cricket World Cup 2025",
+    "level": "International",
+    "start_date": "2025-10-01",
+    "end_date": "2025-11-30",
+    "official_url": "",
+    "streaming_links": "",
+    "image_url": "",
+    "summary": "Women's ODI Cricket World Cup 2025 to be hosted by India in October and November 2025.",
+    "sport": "Cricket"
+  }
+]

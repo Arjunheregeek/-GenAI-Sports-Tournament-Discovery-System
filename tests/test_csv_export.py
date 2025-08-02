@@ -18,24 +18,25 @@ from tournament_calendar.core.config import OUTPUT_FIELDS, SPORTS_LIST, LEVELS_L
 class CSVExporter:
     def __init__(self):
         self.output_fields = OUTPUT_FIELDS
-        self.sample_output_dir = "sample_output"
+        self.sample_output_dir = "test_outputs"
         
-        # Ensure sample_output directory exists
+        # Ensure test_outputs directory exists
         if not os.path.exists(self.sample_output_dir):
             os.makedirs(self.sample_output_dir)
     
     def load_openai_results(self, filename="test_openai_extraction.json"):
         """Load the OpenAI extracted tournament data."""
+        filepath = os.path.join('test_outputs', filename)
         try:
-            with open(filename, 'r', encoding='utf-8') as f:
+            with open(filepath, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-            print(f"✅ Loaded {len(data)} tournaments from {filename}")
+            print(f"✅ Loaded {len(data)} tournaments from test_outputs/{filename}")
             return data
         except FileNotFoundError:
-            print(f"❌ File {filename} not found. Please run test_openai.py first.")
+            print(f"❌ File test_outputs/{filename} not found. Please run test_openai.py first.")
             return []
         except Exception as e:
-            print(f"❌ Error loading {filename}: {e}")
+            print(f"❌ Error loading test_outputs/{filename}: {e}")
             return []
     
     def clean_and_format_data(self, tournaments):

@@ -67,7 +67,11 @@ def test_serper_api():
                     print(f"   Snippet: {result.get('snippet', 'N/A')[:100]}...")
                 
                 # Save test results
-                with open('test_serper_results.json', 'w', encoding='utf-8') as f:
+                output_dir = 'test_outputs'
+                if not os.path.exists(output_dir):
+                    os.makedirs(output_dir)
+                
+                with open(os.path.join(output_dir, 'test_serper_results.json'), 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
                 print(f"\n💾 Full results saved to 'test_serper_results.json'")
                 

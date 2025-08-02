@@ -83,6 +83,10 @@ def test_firecrawl_api():
             })
             
             # Save detailed content to file
+            output_dir = 'test_outputs'
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+                
             filename = f"test_firecrawl_content_{i}.json"
             result_dict = {
                 'url': url,
@@ -91,7 +95,7 @@ def test_firecrawl_api():
                 'html': html_content,
                 'metadata': metadata
             }
-            with open(filename, 'w', encoding='utf-8') as f:
+            with open(os.path.join(output_dir, filename), 'w', encoding='utf-8') as f:
                 json.dump(result_dict, f, indent=2, ensure_ascii=False)
             print(f"💾 Full content saved to '{filename}'")
                 
@@ -104,9 +108,9 @@ def test_firecrawl_api():
             })
     
     # Save summary results
-    with open('test_firecrawl_summary.json', 'w', encoding='utf-8') as f:
+    with open(os.path.join(output_dir, 'test_firecrawl_summary.json'), 'w', encoding='utf-8') as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
-    print(f"\n💾 Summary saved to 'test_firecrawl_summary.json'")
+    print(f"\n💾 Summary saved to 'test_outputs/test_firecrawl_summary.json'")
     
     # Check success rate
     successful = sum(1 for r in results if r['success'])

@@ -79,6 +79,10 @@ def test_firecrawl_api():
                 results.append(result_data)
                 
                 # Save detailed content
+                output_dir = 'test_outputs'
+                if not os.path.exists(output_dir):
+                    os.makedirs(output_dir)
+                    
                 filename = f"test_firecrawl_content_{i}.json"
                 save_data = {
                     'url': url,
@@ -87,9 +91,9 @@ def test_firecrawl_api():
                     'raw_result': str(result)[:1000]  # First 1000 chars of raw result
                 }
                 
-                with open(filename, 'w', encoding='utf-8') as f:
+                with open(os.path.join(output_dir, filename), 'w', encoding='utf-8') as f:
                     json.dump(save_data, f, indent=2, ensure_ascii=False)
-                print(f"💾 Content saved to '{filename}'")
+                print(f"💾 Content saved to 'test_outputs/{filename}'")
                 
             else:
                 print("❌ No result returned")

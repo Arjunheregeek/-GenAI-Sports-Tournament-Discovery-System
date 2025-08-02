@@ -148,9 +148,13 @@ def test_with_sample_content():
             print(f"   Summary: {tournament.get('summary', 'N/A')}")
         
         # Save results
-        with open('test_openai_extraction.json', 'w', encoding='utf-8') as f:
+        output_dir = 'test_outputs'
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+            
+        with open(os.path.join(output_dir, 'test_openai_extraction.json'), 'w', encoding='utf-8') as f:
             json.dump(tournaments, f, indent=2, ensure_ascii=False)
-        print(f"\n💾 Results saved to 'test_openai_extraction.json'")
+        print(f"\n💾 Results saved to 'test_outputs/test_openai_extraction.json'")
         
         return True
     else:
@@ -166,11 +170,12 @@ def test_with_firecrawl_content():
     content_files = ['test_firecrawl_content_1.json', 'test_firecrawl_content_2.json']
     
     for filename in content_files:
-        if os.path.exists(filename):
+        filepath = os.path.join('test_outputs', filename)
+        if os.path.exists(filepath):
             print(f"\n🔍 Testing with content from {filename}")
             
             try:
-                with open(filename, 'r', encoding='utf-8') as f:
+                with open(filepath, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                 
                 content = data.get('markdown', '')
