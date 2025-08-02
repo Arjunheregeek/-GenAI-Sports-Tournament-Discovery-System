@@ -1,8 +1,8 @@
 """
 Content Extractor Module
 
-Extracts webpage content using Firecrawl API with comprehensive processing.
-Supports batch extraction and content quality filtering.
+Extracts structured tournament data using Firecrawl API with schema-based extraction.
+Supports both basic scraping and advanced schema-based structured data extraction.
 """
 
 import json
@@ -12,10 +12,28 @@ from datetime import datetime
 from typing import List, Dict, Optional
 from dotenv import load_dotenv
 from firecrawl import FirecrawlApp
+from pydantic import BaseModel, Field
 from .config import APIConfig
 
 # Load environment variables
 load_dotenv()
+
+class TournamentSchema(BaseModel):
+    """Pydantic schema for structured tournament data extraction."""
+    tournament_name: str = Field(description="Full name of the tournament")
+    level: str = Field(description="Competition level (School/College/University/Club/District/State/National/International/Corporate)")
+    start_date: str = Field(description="Tournament start date in YYYY-MM-DD format")
+    end_date: str = Field(description="Tournament end date in YYYY-MM-DD format") 
+    official_url: str = Field(description="Official tournament website URL")
+    streaming_links: List[str] = Field(description="Array of streaming/broadcast URLs", default=[])
+    image_url: str = Field(description="Tournament poster/banner image URL")
+    summary: str = Field(description="Brief tournament summary (max 50 words)")
+    venue: str = Field(description="Tournament venue/location")
+    registration_info: str = Field(description="Registration details and deadlines")
+    contact_info: str = Field(description="Contact information")
+    eligibility: str = Field(description="Eligibility criteria")
+    prizes: str = Field(description="Prize information")
+    entry_fee: str = Field(description="Entry fee details")
 
 class ContentExtractor:
     """Extracts content from web pages using Firecrawl API."""
@@ -46,6 +64,71 @@ class ContentExtractor:
             print(f"❌ Error initializing Firecrawl API: {e}")
             return False
     
+    def extract_structured_tournament_data(self, urls: List[str], retries: int = 0) -> Optional[List[Dict]]:
+        """Extract structured tournament data using Firecrawl's schema-based extraction."""
+        
+        if not self.app:
+            print("❌ Firecrawl not initialized")
+            return None
+        
+        try:
+            print(f"🔄 Extracting structured tournament data from {len(urls)} URLs...")
+            
+            # Use Firecrawl's extract method with tournament schema
+            result = self.app.extract(
+                urls, 
+                prompt='Extract tournament information including name, dates, venue, level, registration details, contact info, and any streaming/broadcast information from the page.',
+                schema=TournamentSchema.model_json_schema()
+            )
+            
+            # Handle the response structure - Firecrawl returns different response objects
+            if result:
+                # Check if result has success and data attributes (direct object access)
+                if hasattr(result, 'success') and result.success:
+                    data = getattr(result, 'data', None)
+                # Check if result is a dict with success key
+                elif isinstance(result, dict) and result.get('success'):
+                    data = result.get('data')
+                else:
+                    print(f"⚠️ Unexpected response format: {result}")
+                    return None
+                
+                # Handle different data formats
+                if isinstance(data, dict):
+                    # Single tournament data
+                    structured_data = [data] 
+                elif isinstance(data, list):
+                    # Multiple tournaments
+                    structured_data = data
+                else:
+                    print(f"⚠️ Unexpected data format: {type(data)}")
+                    print(f"   Data: {data}")
+                    return None
+                
+                # Filter out empty or invalid entries
+                valid_tournaments = []
+                for tournament in structured_data:
+                    if tournament and isinstance(tournament, dict) and tournament.get('tournament_name'):
+                        valid_tournaments.append(tournament)
+                
+                print(f"✅ Successfully extracted structured data for {len(valid_tournaments)} tournaments")
+                return valid_tournaments if valid_tournaments else None
+            else:
+                print(f"⚠️ No structured data returned or API call failed")
+                if result:
+                    print(f"   Response: {result}")
+                return None
+                
+        except Exception as e:
+            print(f"❌ Error in structured extraction: {e}")
+            
+            if retries < self.max_retries:
+                print(f"🔄 Retrying... ({retries + 1}/{self.max_retries})")
+                time.sleep(2 ** retries)  # Exponential backoff
+                return self.extract_structured_tournament_data(urls, retries + 1)
+            
+            return None
+
     def extract_single_url(self, url: str, retries: int = 0) -> Optional[Dict]:
         """Extract content from a single URL with retry logic."""
         
@@ -223,6 +306,8 @@ class ContentExtractor:
             'linkedin.com', 'pinterest.com', 'reddit.com'
         ]
         
+        print(f"🔍 Filtering {len(search_results)} search results for extraction...")
+        
         for result in search_results:
             if result.get('type') == 'related_search':
                 continue
@@ -230,23 +315,74 @@ class ContentExtractor:
             url = result.get('link', '')
             domain = result.get('domain', '')
             
+            # Skip results without URLs
+            if not url:
+                continue
+            
             # Skip problematic domains
-            if any(pattern in domain.lower() for pattern in skip_patterns):
+            if any(pattern in url.lower() for pattern in skip_patterns):
                 continue
             
             # Skip non-HTTP URLs
             if not url.startswith(('http://', 'https://')):
                 continue
             
-            # Only process URLs with decent relevance scores
-            relevance_score = result.get('relevance_score', 0)
-            if relevance_score < 1.0:
-                continue
-            
+            # Accept all URLs with valid links (removed relevance score filter)
             extractable_results.append(result)
         
+        print(f"✅ Found {len(extractable_results)} extractable URLs")
         return extractable_results
     
+    def extract_tournaments_batch(self, search_results: List[Dict], max_urls: int = None, use_structured: bool = True) -> List[Dict]:
+        """Extract tournament data using either structured or traditional method."""
+        
+        if not self.validate_and_initialize():
+            return []
+        
+        # Filter extractable URLs
+        extractable_urls = self.filter_extractable_urls(search_results)
+        
+        if max_urls:
+            extractable_urls = extractable_urls[:max_urls]
+            print(f"🔢 Limited to first {max_urls} URLs for extraction")
+        
+        urls = [result.get('link', '') for result in extractable_urls]
+        extracted_tournaments = []
+        
+        if use_structured and len(urls) > 0:
+            print(f"🎯 Using structured extraction for {len(urls)} URLs...")
+            
+            # Try structured extraction first
+            structured_data = self.extract_structured_tournament_data(urls)
+            
+            if structured_data:
+                # Process structured data
+                for i, tournament_data in enumerate(structured_data):
+                    if tournament_data and isinstance(tournament_data, dict):
+                        # Enrich with search metadata
+                        if i < len(extractable_urls):
+                            search_result = extractable_urls[i]
+                            tournament_data.update({
+                                'source_url': urls[i] if i < len(urls) else '',
+                                'search_title': search_result.get('title', ''),
+                                'search_snippet': search_result.get('snippet', ''),
+                                'sport': search_result.get('sport', ''),
+                                'original_query': search_result.get('original_query', ''),
+                                'relevance_score': search_result.get('relevance_score', 0),
+                                'extraction_method': 'structured',
+                                'extraction_date': datetime.now().isoformat()
+                            })
+                        
+                        extracted_tournaments.append(tournament_data)
+                        
+                print(f"✅ Structured extraction completed: {len(extracted_tournaments)} tournaments found")
+                return extracted_tournaments
+            else:
+                print("⚠️ Structured extraction failed, falling back to traditional method...")
+        
+        # Fallback to traditional extraction
+        return self.extract_all_content(search_results, max_urls)
+
     def extract_all_content(self, search_results: List[Dict], max_urls: int = None) -> List[Dict]:
         """Extract content from all search result URLs."""
         

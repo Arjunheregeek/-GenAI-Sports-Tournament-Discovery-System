@@ -1,20 +1,20 @@
 {
   "metadata": {
     "total_tournaments": 1,
-    "export_date": "2025-08-02T16:45:48.896105",
+    "export_date": "2025-08-02T17:21:36.789833",
     "format_version": "1.0",
     "assignment_compliance": true,
     "exporter": "TournamentDataExporter"
   },
   "tournaments": [
     {
-      "tournament_name": "Swansea Building Society Cohesion Cup 2025",
-      "level": "Community",
+      "tournament_name": "ICC Women’s ODI World Cup",
+      "level": "International",
       "dates": "",
       "tournament_url": "",
-      "streaming_links": "",
+      "streaming_links": "https://www.olympics.com/en/sign-in?entry_point_type=instory_campaign&entry_point_tag=cricket&template=cricket&origin=https%3A%2F%2Folympics.com%2Fen%2Foriginal-series%2Fsports-swap-india%2F, https://www.icc-cricket.com/news/what-s-on-icc-tv",
       "images": "",
-      "summary": "The Cohesion Cup unites communities of diverse heritage from across Cardiff in an exciting cricket tournament held annually during the summer months at Sophia Gardens."
+      "summary": "The ICC Women’s ODI World Cup will be hosted in India and Sri Lanka, featuring top teams competing for the title."
     }
   ]
 }

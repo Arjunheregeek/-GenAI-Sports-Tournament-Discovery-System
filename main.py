@@ -155,98 +155,70 @@ def main():
         print(f"❌ Search collection error: {e}")
         return 1
     
-    # Step 4: Extract Content from URLs
-    print("\n🌐 STEP 4: Extracting content from tournament websites...")
+    # Step 4: Extract Tournament Data with Advanced Schema-Based Extraction
+    print("\n🌐 STEP 4: Extracting tournament data with schema-based extraction...")
     try:
         content_extractor = ContentExtractor()
         
         if not content_extractor.validate_and_initialize():
             return 1
         
-        # Extract unique URLs
-        unique_urls = list(set([result.get('link') for result in all_search_results if result.get('link')]))
+        print(f"   🎯 Using advanced Firecrawl schema-based extraction...")
         
-        # Limit URLs for demo (remove this limit for production)
-        demo_urls = unique_urls[:10]
-        print(f"   📝 Extracting content from {len(demo_urls)} unique URLs...")
-        
-        extracted_content = []
-        successful_extractions = 0
-        
-        for i, url in enumerate(demo_urls, 1):
-            print(f"      URL {i}/{len(demo_urls)}: {url[:50]}...")
-            
-            content = content_extractor.extract_single_url(url)
-            if content and content.get('content'):
-                extracted_content.append(content)
-                word_count = content.get('word_count', 0)
-                quality_score = content.get('quality_score', 0)
-                print(f"        ✅ Extracted {word_count} words (Quality: {quality_score:.1f})")
-                successful_extractions += 1
-            else:
-                print(f"        ❌ Failed to extract content")
-        
-        print(f"✅ Successfully extracted content from {successful_extractions}/{len(demo_urls)} URLs!")
-        
-        if not extracted_content:
-            print("❌ No content was successfully extracted. Cannot proceed.")
-            return 1
-            
-    except Exception as e:
-        print(f"❌ Content extraction error: {e}")
-        return 1
-    
-    # Step 5: Process Tournaments with AI
-    print("\n🤖 STEP 5: Processing tournaments with AI (OpenAI GPT)...")
-    try:
-        data_processor = TournamentDataProcessor()
-        
-        if not data_processor.validate_api_key():
-            return 1
-        
-        print(f"   🧠 Analyzing {len(extracted_content)} content items for tournament data...")
-        
-        # Process content with AI to extract structured tournament data
-        tournaments = data_processor.process_all_content(
-            extracted_content, 
-            max_items=10  # Limit for demo
+        # Use the new structured extraction method
+        extracted_tournaments = content_extractor.extract_tournaments_batch(
+            search_results=all_search_results, 
+            max_urls=10,  # Limit for demo
+            use_structured=True
         )
         
-        if tournaments and len(tournaments) > 0:
-            # Deduplicate tournaments
-            unique_tournaments = data_processor.deduplicate_tournaments(tournaments)
-            
-            print(f"✅ Successfully processed {len(tournaments)} tournaments!")
-            print(f"🎯 Unique tournaments after deduplication: {len(unique_tournaments)}")
-            
-            # Display tournament summary
-            print(f"\n📋 Tournament Summary (Top 5):")
-            for i, tournament in enumerate(unique_tournaments[:5], 1):
-                name = tournament.get('tournament_name', 'N/A')
-                dates = f"{tournament.get('start_date', 'N/A')} - {tournament.get('end_date', 'N/A')}"
-                venue = tournament.get('venue', 'N/A')
-                level = tournament.get('level', 'N/A')
-                
-                print(f"   {i}. {name}")
-                print(f"      📅 {dates}")
-                print(f"      🏟️  {venue} ({level})")
-                print()
-            
-            if len(unique_tournaments) > 5:
-                print(f"   ... and {len(unique_tournaments) - 5} more tournaments")
-                
-            tournaments = unique_tournaments  # Use deduplicated tournaments
-            
+        if extracted_tournaments and len(extracted_tournaments) > 0:
+            print(f"✅ Successfully extracted {len(extracted_tournaments)} tournaments with structured data!")
+            tournaments = extracted_tournaments
         else:
-            print("❌ No tournaments were successfully processed.")
+            print("❌ No tournament data was successfully extracted. Cannot proceed.")
             return 1
             
     except Exception as e:
-        print(f"❌ Tournament processing error: {e}")
+        print(f"❌ Tournament extraction error: {e}")
+        return 1
+    
+    # Step 5: Data Processing and Validation (Simplified)
+    print("\n🔍 STEP 5: Processing and validating tournament data...")
+    try:
+        # Since we already have structured data, we just need validation and deduplication
+        data_processor = TournamentDataProcessor()
+        
+        # Deduplicate tournaments
+        unique_tournaments = data_processor.deduplicate_tournaments(tournaments)
+        
+        print(f"✅ Data processing completed!")
+        print(f"🎯 Unique tournaments after deduplication: {len(unique_tournaments)}")
+        
+        # Display tournament summary
+        print(f"\n📋 Tournament Summary (Top 5):")
+        for i, tournament in enumerate(unique_tournaments[:5], 1):
+            name = tournament.get('tournament_name', 'N/A')
+            dates = f"{tournament.get('start_date', 'N/A')} - {tournament.get('end_date', 'N/A')}"
+            venue = tournament.get('venue', 'N/A')
+            level = tournament.get('level', 'N/A')
+            
+            print(f"   {i}. {name}")
+            print(f"      📅 {dates}")
+            print(f"      🏟️  {venue} ({level})")
+            print()
+        
+        if len(unique_tournaments) > 5:
+            print(f"   ... and {len(unique_tournaments) - 5} more tournaments")
+            
+        tournaments = unique_tournaments  # Use deduplicated tournaments
+        
+    except Exception as e:
+        print(f"❌ Data processing error: {e}")
         return 1
     
     # Step 5.5: Filter Recent and Future Tournaments Only
-    print("\n📅 STEP 5.5: Filtering tournaments to include only past six months and future events...")
+    print("\n📅 STEP 6: Filtering tournaments to include only past six months and future events...")
     try:
         recent_and_future_tournaments = filter_recent_and_future_tournaments(tournaments)
         
@@ -281,7 +253,7 @@ def main():
         pass
     
     # Step 6: Export Results
-    print("\n📄 STEP 6: Exporting tournament data...")
+    print("\n📄 STEP 7: Exporting tournament data...")
     try:
         data_exporter = TournamentDataExporter(output_directory="final_output")
         
@@ -320,10 +292,10 @@ def main():
     print("📊 FINAL SUMMARY:")
     print(f"   • Search Queries Generated: {len(cricket_queries)}")
     print(f"   • Search Results Collected: {len(all_search_results)}")
-    print(f"   • Content Items Extracted: {len(extracted_content)}")
-    print(f"   • Tournaments Processed: {len(tournaments) if tournaments else 0}")
+    print(f"   • Tournaments Extracted: {len(tournaments) if tournaments else 0}")
     print(f"   • Export Formats: CSV, JSON")
     print(f"   • Configuration Status: ✅ Valid")
+    print("   • Extraction Method: 🎯 Advanced Schema-Based (Firecrawl)")
     print("\n🎯 Ready for submission! Check the 'final_output' directory for results.")
     
     return 0
