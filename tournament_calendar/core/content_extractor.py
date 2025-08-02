@@ -65,68 +65,77 @@ class ContentExtractor:
             return False
     
     def extract_structured_tournament_data(self, urls: List[str], retries: int = 0) -> Optional[List[Dict]]:
-        """Extract structured tournament data using Firecrawl's schema-based extraction."""
+        """Extract structured tournament data using Firecrawl's schema-based extraction with batch processing."""
         
         if not self.app:
             print("❌ Firecrawl not initialized")
             return None
         
-        try:
-            print(f"🔄 Extracting structured tournament data from {len(urls)} URLs...")
+        # Process URLs in batches of 10 due to API limitation
+        batch_size = 10
+        all_tournaments = []
+        
+        print(f"🔄 Extracting structured tournament data from {len(urls)} URLs in batches of {batch_size}...")
+        
+        for i in range(0, len(urls), batch_size):
+            batch_urls = urls[i:i + batch_size]
+            batch_num = (i // batch_size) + 1
+            total_batches = (len(urls) + batch_size - 1) // batch_size
             
-            # Use Firecrawl's extract method with tournament schema
-            result = self.app.extract(
-                urls, 
-                prompt='Extract tournament information including name, dates, venue, level, registration details, contact info, and any streaming/broadcast information from the page.',
-                schema=TournamentSchema.model_json_schema()
-            )
+            print(f"   📦 Processing batch {batch_num}/{total_batches} ({len(batch_urls)} URLs)...")
             
-            # Handle the response structure - Firecrawl returns different response objects
-            if result:
-                # Check if result has success and data attributes (direct object access)
-                if hasattr(result, 'success') and result.success:
-                    data = getattr(result, 'data', None)
-                # Check if result is a dict with success key
-                elif isinstance(result, dict) and result.get('success'):
-                    data = result.get('data')
-                else:
-                    print(f"⚠️ Unexpected response format: {result}")
-                    return None
+            try:
+                # Use Firecrawl's extract method with tournament schema
+                result = self.app.extract(
+                    batch_urls, 
+                    prompt='Extract tournament information including name, dates, venue, level, registration details, contact info, and any streaming/broadcast information from the page.',
+                    schema=TournamentSchema.model_json_schema()
+                )
                 
-                # Handle different data formats
-                if isinstance(data, dict):
-                    # Single tournament data
-                    structured_data = [data] 
-                elif isinstance(data, list):
-                    # Multiple tournaments
-                    structured_data = data
-                else:
-                    print(f"⚠️ Unexpected data format: {type(data)}")
-                    print(f"   Data: {data}")
-                    return None
-                
-                # Filter out empty or invalid entries
-                valid_tournaments = []
-                for tournament in structured_data:
-                    if tournament and isinstance(tournament, dict) and tournament.get('tournament_name'):
-                        valid_tournaments.append(tournament)
-                
-                print(f"✅ Successfully extracted structured data for {len(valid_tournaments)} tournaments")
-                return valid_tournaments if valid_tournaments else None
-            else:
-                print(f"⚠️ No structured data returned or API call failed")
+                # Handle the response structure - Firecrawl returns different response objects
                 if result:
-                    print(f"   Response: {result}")
-                return None
-                
-        except Exception as e:
-            print(f"❌ Error in structured extraction: {e}")
-            
-            if retries < self.max_retries:
-                print(f"🔄 Retrying... ({retries + 1}/{self.max_retries})")
-                time.sleep(2 ** retries)  # Exponential backoff
-                return self.extract_structured_tournament_data(urls, retries + 1)
-            
+                    # Check if result has success and data attributes (direct object access)
+                    if hasattr(result, 'success') and result.success:
+                        data = getattr(result, 'data', None)
+                    # Check if result is a dict with success key
+                    elif isinstance(result, dict) and result.get('success'):
+                        data = result.get('data')
+                    else:
+                        print(f"⚠️ Batch {batch_num} - Unexpected response format: {result}")
+                        continue
+                    
+                    # Handle different data formats
+                    if isinstance(data, dict):
+                        # Single tournament data
+                        structured_data = [data] 
+                    elif isinstance(data, list):
+                        # Multiple tournaments
+                        structured_data = data
+                    else:
+                        print(f"⚠️ Batch {batch_num} - Unexpected data format: {type(data)}")
+                        continue
+                    
+                    # Filter out empty or invalid entries
+                    valid_tournaments = []
+                    for tournament in structured_data:
+                        if tournament and isinstance(tournament, dict) and tournament.get('tournament_name'):
+                            valid_tournaments.append(tournament)
+                    
+                    all_tournaments.extend(valid_tournaments)
+                    print(f"   ✅ Batch {batch_num} extracted {len(valid_tournaments)} tournaments")
+                    
+                else:
+                    print(f"⚠️ Batch {batch_num} - No structured data returned or API call failed")
+                    
+            except Exception as e:
+                print(f"❌ Batch {batch_num} error: {e}")
+                continue
+        
+        if all_tournaments:
+            print(f"✅ Successfully extracted structured data for {len(all_tournaments)} tournaments across all batches")
+            return all_tournaments
+        else:
+            print(f"⚠️ No tournaments extracted from any batch")
             return None
 
     def extract_single_url(self, url: str, retries: int = 0) -> Optional[Dict]:

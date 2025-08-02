@@ -8,9 +8,7 @@ from typing import List, Dict, Any
 
 # All sports to cover as per assignment
 SPORTS_LIST = [
-    "Cricket", "Football", "Badminton", "Running", "Gym", 
-    "Cycling", "Swimming", "Kabaddi", "Yoga", "Basketball", 
-    "Chess", "Table Tennis"
+    "Cricket"
 ]
 
 # All levels to cover as per assignment

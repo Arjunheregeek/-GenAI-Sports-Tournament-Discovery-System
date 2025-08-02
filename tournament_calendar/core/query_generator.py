@@ -24,73 +24,130 @@ class QueryGenerator:
         self.sports = SPORTS_LIST
         self.levels = LEVELS_LIST
         
-        # Query templates for different types of searches
-        self.query_templates = [
-            "Upcoming {sport} tournaments 2025 India {level} level",
-            "{sport} championship {level} 2025 India registration dates",
-            "{level} {sport} competition India 2025 schedule",
-            "India {sport} tournament {level} 2025 official website",
-            "{sport} inter {level} tournament 2025 India dates",
-            "{level} level {sport} tournaments India 2025 calendar",
-            "2025 {sport} {level} championship India venues dates",
-            "India {sport} {level} league 2025 fixtures schedule",
-            "{sport} {level} cup tournament India 2025 registration",
-            "Best {sport} tournaments {level} India 2025 official"
+        # Official Sports Governing Bodies for targeted queries
+        self.governing_bodies = {
+            "Cricket": {"international": "ICC", "national": "BCCI", "website": "bcci.tv"},
+            "Football": {"international": "FIFA", "national": "AIFF", "website": "the-aiff.com"},
+            "Badminton": {"international": "BWF", "national": "BAI", "website": "badmintonindia.org"},
+            "Running": {"international": "World Athletics", "national": "AFI", "website": "athleticsfederationofindia.in"},
+            "Cycling": {"international": "UCI", "national": "CFI", "website": "cyclingfederationofindia.com"},
+            "Swimming": {"international": "World Aquatics", "national": "SFI", "website": "swimmingfederationofindia.com"},
+            "Basketball": {"international": "FIBA", "national": "BFI", "website": "basketballfederationofindia.org"},
+            "Chess": {"international": "FIDE", "national": "AICF", "website": "aicf.in"},
+            "Table Tennis": {"international": "ITTF", "national": "TTFI", "website": "tabletennis.org.in"},
+            "Kabaddi": {"international": "IKF", "national": "KFI", "website": "prokabaddi.com"},
+            "Yoga": {"international": "International Yoga Federation", "national": "Ministry of AYUSH", "website": "ayush.gov.in"},
+            "Gym": {"international": "IWF", "national": "Indian Weightlifting Federation", "website": "indianweightlifting.com"}
+        }
+        
+        # Sport-specific major events (for LLM context)
+        self.major_events_by_sport = {
+            "Cricket": ["World Cup", "Women's World Cup", "T20 World Cup", "Asia Cup", "Champions Trophy"],
+            "Football": ["World Cup", "Women's World Cup", "Asian Cup", "Copa America", "Euros"],
+            "Badminton": ["World Championships", "Thomas Cup", "Uber Cup", "Asian Championships"],
+            "Basketball": ["World Cup", "Women's World Cup", "Asia Cup", "Olympic Qualifiers"],
+            # Add more sports as needed
+        }
+        
+        # Highly efficient query templates - exactly 4 queries (2 men + 2 women)
+        # These target comprehensive tournament calendars and schedules
+        self.official_query_templates = [
+            # Men's international events - comprehensive calendar searches
+            '"{international_body}" men {sport} international tournament calendar 2025 schedule fixtures upcoming',
+            '"{international_body}" men {sport} events 2025 world championship asia cup series schedule',
+            
+            # Women's international events - comprehensive calendar searches  
+            '"{international_body}" women {sport} international tournament calendar 2025 schedule fixtures upcoming',
+            '"{international_body}" women {sport} events 2025 world championship asia cup series schedule'
         ]
     
-    def generate_base_queries(self) -> List[Dict]:
-        """Generate comprehensive search queries for all sport-level combinations."""
+    def generate_official_body_queries(self) -> List[Dict]:
+        """Generate targeted queries using official governing bodies for maximum authority."""
         queries = []
         
-        print(f"Generating queries for {len(self.sports)} sports and {len(self.levels)} levels...")
+        print(f"Generating official body queries for {len(self.sports)} sports using governing body data...")
         
         for sport in self.sports:
-            for level in self.levels:
-                # Generate multiple query variations for each combination
-                for template in self.query_templates:
-                    query = template.format(sport=sport, level=level)
+            if sport not in self.governing_bodies:
+                print(f"⚠️  No governing body data for {sport}, skipping...")
+                continue
+                
+            body_info = self.governing_bodies[sport]
+            
+            # Generate queries using official body templates
+            for template in self.official_query_templates:
+                try:
+                    query = template.format(
+                        sport=sport,
+                        international_body=body_info["international"],
+                        national_body=body_info["national"],
+                        website=body_info["website"]
+                    )
+                    
                     queries.append({
                         "sport": sport,
-                        "level": level,
                         "query": query,
-                        "template": template
+                        "template": template,
+                        "type": "official_body",
+                        "governing_body": body_info["national"],
+                        "international_body": body_info["international"],
+                        "official_website": body_info["website"]
                     })
+                except KeyError as e:
+                    print(f"⚠️  Template formatting error for {sport}: {e}")
+                    continue
         
+        print(f"✅ Generated {len(queries)} official body queries ({len(self.official_query_templates)} per sport)")
         return queries
     
-    def enhance_queries_with_llm(self, base_queries: List[Dict], batch_size: int = 20) -> List[Dict]:
-        """Use LLM to generate more sophisticated and diverse queries in batches."""
+    def generate_supplementary_llm_queries(self, base_queries: List[Dict]) -> List[Dict]:
+        """Generate additional sophisticated queries using LLM with governing body context."""
         
         enhanced_queries = base_queries.copy()
         
-        # Process sports in batches to avoid token limits
-        for i in range(0, len(self.sports), batch_size):
-            sport_batch = self.sports[i:i + batch_size]
+        for sport in self.sports:
+            if sport not in self.governing_bodies:
+                continue
+                
+            body_info = self.governing_bodies[sport]
             
             prompt = f"""
-            Generate 3 additional search queries for finding tournament information for each sport-level combination.
-            Focus on finding official tournament websites, registration pages, and schedule information.
+            Generate 5 highly targeted search queries for finding official {sport} tournament information in India for 2025.
             
-            Make queries specific to India and include year 2025.
-            Vary the language and terms used (tournament, championship, competition, league, cup, series, etc.).
-            Include local tournament searches for bonus points.
+            Context:
+            - Sport: {sport}
+            - National Governing Body: {body_info["national"]}
+            - International Body: {body_info["international"]}
+            - Official Website: {body_info["website"]}
             
-            Sports: {', '.join(sport_batch)}
-            Levels: {', '.join(self.levels)}
+            PRIORITY EVENTS TO TARGET (especially for Cricket):
+            - Cricket World Cup 2025 (Men's)
+            - Women's Cricket World Cup 2025
+            - Asia Cup Cricket 2025
+            - Champions Trophy 2025
+            - T20 World Cup 2025
             
-            Return only the additional queries in this exact JSON format:
-            [
-                {{"sport": "Cricket", "level": "School", "query": "example query", "source": "llm_generated"}},
-                ...
-            ]
+            Requirements:
+            - Focus on OFFICIAL tournament announcements, schedules, and registration
+            - PRIORITIZE {body_info["international"]} (international body) over national bodies
+            - Include BOTH men's and women's tournaments/competitions
+            - Target the specific upcoming major events listed above
+            - Use governing body names/acronyms for authority targeting
+            - Include site-specific searches when beneficial
+            - Target registration deadlines, venue information, and live streaming
+            - Make queries actionable for finding tournament participation info
+            - Include World Cup, championship, and league-specific searches
+            
+            Return ONLY a JSON array of query strings:
+            ["query1", "query2", "query3", "query4", "query5"]
             """
             
             try:
                 response = self.client.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=[{"role": "user", "content": prompt}],
-                    temperature=0.7,
-                    max_tokens=2000
+                    temperature=0.6,
+                    max_tokens=800
                 )
                 
                 # Parse the LLM response
@@ -99,42 +156,66 @@ class QueryGenerator:
                     llm_response = llm_response.replace('```json', '').replace('```', '').strip()
                 
                 llm_queries = json.loads(llm_response)
-                enhanced_queries.extend(llm_queries)
                 
-                print(f"Enhanced with {len(llm_queries)} LLM-generated queries for batch {i//batch_size + 1}")
+                # Add the LLM queries for this sport
+                for query_text in llm_queries:
+                    enhanced_queries.append({
+                        "sport": sport,
+                        "query": query_text,
+                        "template": "llm_generated_with_governing_body",
+                        "type": "llm_official",
+                        "source": "openai_gpt35",
+                        "governing_body": body_info["national"]
+                    })
+                
+                print(f"✅ Generated {len(llm_queries)} official LLM queries for {sport}")
                 
             except Exception as e:
-                print(f"Error generating enhanced queries for batch {i//batch_size + 1}: {e}")
+                print(f"❌ Error generating official LLM queries for {sport}: {e}")
                 continue
         
         return enhanced_queries
     
     def add_local_tournament_queries(self, queries: List[Dict]) -> List[Dict]:
-        """Add queries specifically for local tournaments (bonus points)."""
+        """Add queries for local tournaments using governing body context with gender-specific searches."""
         
         local_templates = [
-            "{sport} local tournament {level} India 2025",
-            "{level} {sport} district tournament India 2025",
-            "Community {sport} tournament {level} 2025",
-            "Local {sport} championship {level} India cities",
-            "{sport} club tournament {level} India 2025",
-            "Residential {sport} tournament {level} 2025",
-            "City level {sport} tournament {level} India",
-            "Municipal {sport} championship {level} 2025"
+            '"{national_body}" district {sport} tournaments India 2025',
+            '"{national_body}" state championship {sport} 2025 registration',
+            'local {sport} clubs India "{national_body}" affiliation 2025',
+            'corporate {sport} tournaments India "{national_body}" sanctioned 2025',
+            'academy {sport} competitions India "{national_body}" recognized 2025',
+            'municipal {sport} leagues India "{national_body}" approved 2025',
+            '"{national_body}" men {sport} district championships India 2025',
+            '"{national_body}" women {sport} district championships India 2025',
+            'local men {sport} tournaments India "{national_body}" 2025',
+            'local women {sport} tournaments India "{national_body}" 2025',
+            'corporate men {sport} leagues India "{national_body}" 2025',
+            'corporate women {sport} leagues India "{national_body}" 2025'
         ]
         
         local_queries = []
         for sport in self.sports:
-            for level in ["Club", "Academy", "District", "Corporate"]:  # Focus on local levels
-                for template in local_templates:
-                    query = template.format(sport=sport, level=level)
+            if sport not in self.governing_bodies:
+                continue
+                
+            body_info = self.governing_bodies[sport]
+            
+            for template in local_templates:
+                try:
+                    query = template.format(
+                        sport=sport,
+                        national_body=body_info["national"]
+                    )
                     local_queries.append({
                         "sport": sport,
-                        "level": level,
                         "query": query,
                         "template": template,
-                        "type": "local_tournament"
+                        "type": "local_official",
+                        "governing_body": body_info["national"]
                     })
+                except KeyError:
+                    continue
         
         return queries + local_queries
     
@@ -163,11 +244,10 @@ class QueryGenerator:
             "metadata": {
                 "total_queries": len(queries),
                 "sports_covered": len(self.sports),
-                "levels_covered": len(self.levels),
                 "sports_list": self.sports,
-                "levels_list": self.levels,
                 "generated_at": "2025-08-02T00:00:00Z",
-                "generator_version": "1.0"
+                "generator_version": "2.0",
+                "query_approach": "official_governing_body_targeted"
             },
             "queries": queries
         }
@@ -183,45 +263,35 @@ class QueryGenerator:
         stats = {
             "total_queries": len(queries),
             "by_sport": {},
-            "by_level": {},
             "by_type": {}
         }
         
         for query in queries:
             sport = query.get('sport', 'Unknown')
-            level = query.get('level', 'Unknown')
             query_type = query.get('type', 'standard')
             
             stats["by_sport"][sport] = stats["by_sport"].get(sport, 0) + 1
-            stats["by_level"][level] = stats["by_level"].get(level, 0) + 1
             stats["by_type"][query_type] = stats["by_type"].get(query_type, 0) + 1
         
         return stats
     
     def generate_all_queries(self, use_llm_enhancement: bool = True) -> List[Dict]:
-        """Generate complete set of search queries."""
+        """Generate complete set of official body targeted queries."""
         print("=" * 60)
-        print("🚀 Generating Complete Query Set for Tournament Calendar")
+        print("🚀 Generating Official Body Query Set for Tournament Calendar")
         print("=" * 60)
         
-        # Step 1: Generate base queries
-        print("📋 Step 1: Generating base queries...")
-        base_queries = self.generate_base_queries()
-        print(f"✅ Generated {len(base_queries)} base queries")
+        # Step 1: Generate official body queries using governing bodies
+        print("📋 Step 1: Generating official body queries...")
+        base_queries = self.generate_official_body_queries()
+        print(f"✅ Generated {len(base_queries)} official body queries")
         
-        # Step 2: Enhance with LLM (optional)
-        if use_llm_enhancement and self.api_config.openai_api_key:
-            print("\n🤖 Step 2: Enhancing queries with LLM...")
-            all_queries = self.enhance_queries_with_llm(base_queries)
-            print(f"✅ Total queries after LLM enhancement: {len(all_queries)}")
-        else:
-            all_queries = base_queries
-            print("\n⏭️  Skipping LLM enhancement")
+        # Step 2: Skip LLM enhancement - using only hand-crafted efficient queries
+        all_queries = base_queries
+        print("\n⏭️  Using only hand-crafted efficient queries (no LLM enhancement needed)")
         
-        # Step 3: Add local tournament queries
-        print("\n🏘️  Step 3: Adding local tournament queries...")
-        all_queries = self.add_local_tournament_queries(all_queries)
-        print(f"✅ Total queries after local tournaments: {len(all_queries)}")
+        # Step 3: Skip local tournament queries - focus on international tournaments only
+        print(f"\n🎯 Using focused international queries only: {len(all_queries)} queries")
         
         # Step 4: Remove duplicates
         print("\n🧹 Step 4: Removing duplicates...")
@@ -235,14 +305,14 @@ class QueryGenerator:
         print(f"\n📈 Query Statistics:")
         print(f"   Total Queries: {stats['total_queries']}")
         print(f"   Sports Covered: {len(stats['by_sport'])}")
-        print(f"   Levels Covered: {len(stats['by_level'])}")
+        print(f"   Query Types: {', '.join(stats['by_type'].keys())}")
         
         # Step 6: Save queries
         print("\n💾 Step 6: Saving queries...")
         filename = self.save_queries(all_queries)
         
         print("\n" + "=" * 60)
-        print("✅ Query Generation Complete!")
+        print("✅ Official Body Query Generation Complete!")
         print(f"📁 Saved to: {filename}")
         print(f"🎯 Ready for Step 2: Search Results Collection")
         
@@ -262,7 +332,7 @@ def main():
     for query in queries[:20]:  # Show first 20 as examples
         sport = query['sport']
         if sport not in sports_shown and len(sports_shown) < 5:
-            print(f"\n🏆 {sport} - {query['level']}:")
+            print(f"\n🏆 {sport} - {query.get('type', 'N/A')}:")
             print(f"   Query: {query['query']}")
             sports_shown.add(sport)
 

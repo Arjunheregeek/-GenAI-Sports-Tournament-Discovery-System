@@ -132,7 +132,7 @@ def main():
         if not search_collector.validate_api_key():
             return 1
             
-        print(f"   🔍 Processing {len(cricket_queries)} search queries...")
+        print(f"   🔍 Processing {len(cricket_queries)} targeted ICC queries...")
         all_search_results = []
         
         # Process queries in batches
@@ -168,7 +168,7 @@ def main():
         # Use the new structured extraction method
         extracted_tournaments = content_extractor.extract_tournaments_batch(
             search_results=all_search_results, 
-            max_urls=10,  # Limit for demo
+            max_urls=None,  # Process all available URLs (removed demo limit)
             use_structured=True
         )
         
