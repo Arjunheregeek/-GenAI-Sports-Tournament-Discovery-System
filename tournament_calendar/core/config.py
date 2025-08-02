@@ -15,8 +15,7 @@ SPORTS_LIST = [
 
 # All levels to cover as per assignment
 LEVELS_LIST = [
-    "Corporate", "School", "College", "University", "Club", "Academy",
-    "District", "State", "Zonal", "Regional", "National", "International"
+    "International"
 ]
 
 # Output format fields as per assignment requirements

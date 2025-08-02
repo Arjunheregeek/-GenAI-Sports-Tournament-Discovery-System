@@ -203,16 +203,16 @@ class TournamentDataExporter:
     
     def format_for_assignment_requirements(self, tournaments: List[Dict]) -> List[Dict]:
         """
-        Format tournaments according to assignment requirements.
-        
+        Format tournaments according to assignment requirements, including those with partial data.
+
         Args:
             tournaments: Raw tournament data
-            
+
         Returns:
             Formatted tournaments for assignment compliance
         """
         formatted_tournaments = []
-        
+
         for tournament in tournaments:
             # Parse JSON strings back to lists for processing
             streaming_links = tournament.get('streaming_links', '[]')
@@ -221,14 +221,14 @@ class TournamentDataExporter:
                     streaming_links = json.loads(streaming_links)
                 except:
                     streaming_links = []
-            
+
             images = tournament.get('images', '[]')
             if isinstance(images, str):
                 try:
                     images = json.loads(images)
                 except:
                     images = []
-            
+
             # Format according to assignment specification
             formatted = {
                 'tournament_name': tournament.get('tournament_name', '').strip(),
@@ -239,13 +239,10 @@ class TournamentDataExporter:
                 'images': ', '.join(images) if images else '',
                 'summary': tournament.get('summary', '').strip()
             }
-            
-            # Only include tournaments with required fields
-            if (formatted['tournament_name'] and 
-                formatted['level'] and 
-                formatted['dates']):
-                formatted_tournaments.append(formatted)
-        
+
+            # Include tournaments even if some fields are missing
+            formatted_tournaments.append(formatted)
+
         print(f"✅ Formatted {len(formatted_tournaments)} tournaments for export")
         return formatted_tournaments
     

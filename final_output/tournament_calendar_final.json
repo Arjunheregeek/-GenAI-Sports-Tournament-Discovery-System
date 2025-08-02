@@ -1,0 +1,20 @@
+{
+  "metadata": {
+    "total_tournaments": 1,
+    "export_date": "2025-08-02T16:45:48.896105",
+    "format_version": "1.0",
+    "assignment_compliance": true,
+    "exporter": "TournamentDataExporter"
+  },
+  "tournaments": [
+    {
+      "tournament_name": "Swansea Building Society Cohesion Cup 2025",
+      "level": "Community",
+      "dates": "",
+      "tournament_url": "",
+      "streaming_links": "",
+      "images": "",
+      "summary": "The Cohesion Cup unites communities of diverse heritage from across Cardiff in an exciting cricket tournament held annually during the summer months at Sophia Gardens."
+    }
+  ]
+}

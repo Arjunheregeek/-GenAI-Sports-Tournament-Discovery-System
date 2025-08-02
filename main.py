@@ -26,7 +26,7 @@ import sys
 import json
 from pathlib import Path
 from typing import List, Dict
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 # Add the project root to Python path
 project_root = Path(__file__).parent
@@ -41,79 +41,44 @@ from tournament_calendar.core.data_processor import TournamentDataProcessor
 from tournament_calendar.exporters.data_exporter import TournamentDataExporter
 
 
-def filter_future_tournaments(tournaments: List[Dict]) -> List[Dict]:
+def filter_recent_and_future_tournaments(tournaments: List[Dict]) -> List[Dict]:
     """
-    Filter out tournaments that have already started or ended.
-    Only keep tournaments that haven't started yet (future tournaments).
-    
+    Filter tournaments to include those held in the past six months and future tournaments.
+
     Args:
         tournaments: List of tournament dictionaries
-        
+
     Returns:
-        List of tournaments with only future tournaments
+        List of tournaments within the past six months or in the future.
     """
     current_date = date.today()
-    future_tournaments = []
-    filtered_count = 0
-    
+    six_months_ago = current_date - timedelta(days=6 * 30)  # Approximation for six months
+    relevant_tournaments = []
+
     print(f"   📅 Current date: {current_date}")
-    print(f"   🔍 Filtering tournaments to keep only future events...")
-    
+    print(f"   🔍 Filtering tournaments to include past six months and future events...")
+
     for tournament in tournaments:
         start_date_str = tournament.get('start_date', '')
-        
+
         # Skip tournaments without start dates
         if not start_date_str or start_date_str in ['N/A', 'TBD', 'To be announced']:
-            # Keep tournaments without specific dates (they might be future)
-            future_tournaments.append(tournament)
+            # Keep tournaments without specific dates (they might be relevant)
+            relevant_tournaments.append(tournament)
             continue
-            
+
         try:
             # Parse different date formats
-            tournament_start_date = None
-            
-            # Try different date formats
-            date_formats = [
-                '%Y-%m-%d',     # 2025-01-15
-                '%d/%m/%Y',     # 15/01/2025
-                '%m/%d/%Y',     # 01/15/2025
-                '%d-%m-%Y',     # 15-01-2025
-                '%B %d, %Y',    # January 15, 2025
-                '%d %B %Y',     # 15 January 2025
-                '%Y-%m',        # 2025-01 (month only)
-                '%B %Y',        # January 2025
-            ]
-            
-            for date_format in date_formats:
-                try:
-                    parsed_date = datetime.strptime(start_date_str.strip(), date_format)
-                    tournament_start_date = parsed_date.date()
-                    break
-                except ValueError:
-                    continue
-            
-            # If we couldn't parse the date, keep the tournament (might be future)
-            if tournament_start_date is None:
-                future_tournaments.append(tournament)
-                continue
-                
-            # Only keep tournaments that start in the future
-            if tournament_start_date > current_date:
-                future_tournaments.append(tournament)
-            else:
-                filtered_count += 1
-                tournament_name = tournament.get('tournament_name', 'Unknown')
-                print(f"   🚫 Filtered out past tournament: {tournament_name} (started {tournament_start_date})")
-                
-        except Exception as e:
-            # If there's any error parsing, keep the tournament
-            future_tournaments.append(tournament)
-            continue
-    
-    print(f"   ✅ Filtered out {filtered_count} past tournaments")
-    print(f"   🎯 Keeping {len(future_tournaments)} future tournaments")
-    
-    return future_tournaments
+            tournament_start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+
+            # Check if the tournament is within the past six months or in the future
+            if six_months_ago <= tournament_start_date:
+                relevant_tournaments.append(tournament)
+        except ValueError:
+            print(f"⚠️ Unable to parse date for tournament: {tournament.get('tournament_name', 'Unknown')}")
+
+    print(f"   ✅ Total relevant tournaments: {len(relevant_tournaments)}")
+    return relevant_tournaments
 
 
 def main():
@@ -280,17 +245,17 @@ def main():
         print(f"❌ Tournament processing error: {e}")
         return 1
     
-    # Step 5.5: Filter Future Tournaments Only
-    print("\n📅 STEP 5.5: Filtering tournaments to include only future events...")
+    # Step 5.5: Filter Recent and Future Tournaments Only
+    print("\n📅 STEP 5.5: Filtering tournaments to include only past six months and future events...")
     try:
-        future_tournaments = filter_future_tournaments(tournaments)
+        recent_and_future_tournaments = filter_recent_and_future_tournaments(tournaments)
         
-        if future_tournaments and len(future_tournaments) > 0:
-            tournaments = future_tournaments  # Update tournaments list
-            print(f"✅ Tournament filtering completed! {len(tournaments)} future tournaments retained.")
+        if recent_and_future_tournaments and len(recent_and_future_tournaments) > 0:
+            tournaments = recent_and_future_tournaments  # Update tournaments list
+            print(f"✅ Tournament filtering completed! {len(tournaments)} relevant tournaments retained.")
             
             # Display filtered tournament summary
-            print(f"\n📋 Future Tournament Summary (Top 5):")
+            print(f"\n📋 Relevant Tournament Summary (Top 5):")
             for i, tournament in enumerate(tournaments[:5], 1):
                 name = tournament.get('tournament_name', 'N/A')
                 dates = f"{tournament.get('start_date', 'N/A')} - {tournament.get('end_date', 'N/A')}"
@@ -303,10 +268,10 @@ def main():
                 print()
             
             if len(tournaments) > 5:
-                print(f"   ... and {len(tournaments) - 5} more future tournaments")
+                print(f"   ... and {len(tournaments) - 5} more relevant tournaments")
         else:
-            print("⚠️  No future tournaments found after filtering.")
-            print("   This might be expected if all tournaments have already occurred.")
+            print("⚠️  No relevant tournaments found after filtering.")
+            print("   This might be expected if no tournaments are within the desired date range.")
             # Continue with empty list for demonstration
             tournaments = []
             
