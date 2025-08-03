@@ -67,10 +67,15 @@ class ExportManagerService:
         
         try:
             print("💾 Exporting tournament data...")
-            csv_file, json_file = self.data_exporter.export_tournaments(
+            
+            # Fix: The export_tournaments method returns a dictionary, not a tuple
+            export_results = self.data_exporter.export_tournaments(
                 tournaments, 
                 filename_prefix
             )
+            
+            csv_file = export_results.get('csv_file', '')
+            json_file = export_results.get('json_file', '')
             
             export_info = ExportInfo(
                 status="success",

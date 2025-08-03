@@ -490,3 +490,30 @@ class TournamentDataExporter:
             "quality": stats['confidence_distribution'],
             "ready_for_export": len(formatted) > 0
         }
+    
+    def export_tournaments(self, tournaments: List[Dict], sport: str) -> Dict[str, str]:
+        """
+        Export tournaments to both CSV and JSON formats.
+
+        Args:
+            tournaments: List of processed tournament data.
+            sport: The sport for which tournaments are being exported.
+
+        Returns:
+            A dictionary containing paths to the exported files.
+        """
+        export_results = {}
+
+        # Export to CSV
+        csv_filename = f"{sport}_tournaments.csv"
+        csv_path = self.export_to_csv(tournaments, csv_filename)
+        if csv_path:
+            export_results['csv_file'] = csv_path
+
+        # Export to JSON
+        json_filename = f"{sport}_tournaments.json"
+        json_path = self.export_to_json(tournaments, json_filename)
+        if json_path:
+            export_results['json_file'] = json_path
+
+        return export_results
