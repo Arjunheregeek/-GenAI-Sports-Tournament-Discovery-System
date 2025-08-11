@@ -1,5 +1,0 @@
-requests
-openai
-pandas
-python-dotenv
-firecrawl-py

@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "total_queries": 6,
+    "sports_covered": 1,
+    "sports_list": [
+      "Cricket"
+    ],
+    "generated_at": "2025-08-02T00:00:00Z",
+    "generator_version": "2.0",
+    "query_approach": "official_governing_body_targeted"
+  },
+  "queries": [
+    {
+      "sport": "Cycling",
+      "query": "\"UCI\" men Cycling international tournament calendar 2025 schedule fixtures upcoming",
+      "template": "\"{international_body}\" men {sport} international tournament calendar 2025 schedule fixtures upcoming",
+      "type": "official_body",
+      "governing_body": "CFI",
+      "international_body": "UCI",
+      "official_website": "cyclingfederationofindia.com"
+    },
+    {
+      "sport": "Cycling",
+      "query": "\"UCI\" men Cycling world cup championship 2025 asia cup series schedule",
+      "template": "\"{international_body}\" men {sport} world cup championship 2025 asia cup series schedule",
+      "type": "official_body",
+      "governing_body": "CFI",
+      "international_body": "UCI",
+      "official_website": "cyclingfederationofindia.com"
+    },
+    {
+      "sport": "Cycling",
+      "query": "\"UCI\" men Cycling major events 2025 world championship tournaments schedule",
+      "template": "\"{international_body}\" men {sport} major events 2025 world championship tournaments schedule",
+      "type": "official_body",
+      "governing_body": "CFI",
+      "international_body": "UCI",
+      "official_website": "cyclingfederationofindia.com"
+    },
+    {
+      "sport": "Cycling",
+      "query": "\"UCI\" women Cycling international tournament calendar 2025 schedule fixtures upcoming",
+      "template": "\"{international_body}\" women {sport} international tournament calendar 2025 schedule fixtures upcoming",
+      "type": "official_body",
+      "governing_body": "CFI",
+      "international_body": "UCI",
+      "official_website": "cyclingfederationofindia.com"
+    },
+    {
+      "sport": "Cycling",
+      "query": "\"UCI\" women Cycling world cup championship 2025 asia cup series schedule",
+      "template": "\"{international_body}\" women {sport} world cup championship 2025 asia cup series schedule",
+      "type": "official_body",
+      "governing_body": "CFI",
+      "international_body": "UCI",
+      "official_website": "cyclingfederationofindia.com"
+    },
+    {
+      "sport": "Cycling",
+      "query": "\"UCI\" women Cycling major events 2025 world championship tournaments schedule",
+      "template": "\"{international_body}\" women {sport} major events 2025 world championship tournaments schedule",
+      "type": "official_body",
+      "governing_body": "CFI",
+      "international_body": "UCI",
+      "official_website": "cyclingfederationofindia.com"
+    }
+  ]
+}
